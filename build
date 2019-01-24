@@ -1,0 +1,11 @@
+#!/bin/sh
+
+#fail on error
+set -e
+
+pushd web-dev
+
+npm install
+node_modules/.bin/webpack --config webpack.config.js "$@"
+
+popd
