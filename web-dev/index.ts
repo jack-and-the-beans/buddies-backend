@@ -1,6 +1,7 @@
 import { store, SetHasBeenOpenForMoreThan5Seconds, SetIsAuthorized } from './Store';
 import * as firebase from 'firebase';
 import * as App from './App'; 
+import './style.scss';
 
 function watchValuesForRedux() {
     setTimeout(() => { // Example
