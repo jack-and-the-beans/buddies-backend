@@ -46,7 +46,7 @@ class AppContent extends React.Component<AppProps, {mode: ContentMode}> {
     private renderBody() {
         switch(this.state.mode) {
             case ContentMode.Topics:
-                return <EditTopics onCreateTopic={TopicService.createTopic} topics={this.props.topics} />
+                return <EditTopics onCreateTopic={TopicService.createTopic} topics={this.props.topics} onDeleteTopic={TopicService.deleteTopic}/>
             case ContentMode.Reports:
                 return <div>Not Implemented</div>;
         }

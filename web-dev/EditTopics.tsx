@@ -2,10 +2,13 @@ import * as React from 'react';
 import FlipMove from 'react-flip-move';
 import * as _ from 'lodash';
 
-function Topic(props: { topic: Topic }) {
+function Topic(props: { topic: Topic, onDelete: (id: string) => void }) {
     return (
         <div className="card">
-            <h1>{props.topic.name}</h1>
+            <div className="top-area">
+                <h1>{props.topic.name}</h1>
+                <button onClick={() => props.onDelete(props.topic.id)}>Delete</button>
+            </div>
             <img src={props.topic.image_url} />
         </div>
     );
@@ -81,7 +84,8 @@ export class CreateTopic extends React.PureComponent<{ onCreate(toCreate: TopicT
 
 type EditTopicsProps = {
     topics: Topic[]
-    onCreateTopic(topicToCreate: TopicToCreate): Promise<any>;
+    onCreateTopic(topicToCreate: TopicToCreate): Promise<any>
+    onDeleteTopic(topicId: string): void
 }
 
 export class EditTopics extends React.PureComponent<EditTopicsProps> {
@@ -90,7 +94,7 @@ export class EditTopics extends React.PureComponent<EditTopicsProps> {
             <div>
                 <CreateTopic onCreate={this.props.onCreateTopic} key="__Create" />
                 <FlipMove>
-                    {this.props.topics.map(t => <Topic topic={t} key={t.name} />)}
+                    {this.props.topics.map(t => <Topic topic={t} key={t.id} onDelete={this.props.onDeleteTopic}/>)}
                 </FlipMove>
             </div>
         );
