@@ -30,6 +30,7 @@
   },
   "dependencies": {
     "firebase": "^5.7.3",
+    "firebaseui": "^3.5.2",
     "immutability-helper": "^2.9.0",
     "lodash": "^4.17.11",
     "react": "^16.7.0",

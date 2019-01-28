@@ -23,22 +23,26 @@ class App extends React.PureComponent<AppProps> {
     }
 
     render() {
+        if (!this.props.isAuthorized)
+            return null;
+
         return (
             <div>
-                <div>UID: {this.props.isAuthorized ? firebase.auth().currentUser!.uid : "----------------"}</div>
+                <div>UID: {firebase.auth().currentUser!.uid}</div>
                 {this.getTimerSection()}
             </div>
         );
     }
 }
 
-export function renderIn(container: Element) {
-    function mapStateToProps(state: State): AppProps {
-        return {
-            hasBeenOpenForMoreThan5Seconds: state.hasBeenOpenForMoreThan5Seconds,
-            isAuthorized: state.isAuthorized,
-        }
+function mapStateToProps(state: State): AppProps {
+    return {
+        hasBeenOpenForMoreThan5Seconds: state.hasBeenOpenForMoreThan5Seconds,
+        isAuthorized: state.isAuthorized,
     }
+}
+
+export function renderIn(container: Element) {
 
 	const ConnectedApp = connect(mapStateToProps)(App);
 

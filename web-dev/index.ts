@@ -1,7 +1,11 @@
 import { store, SetHasBeenOpenForMoreThan5Seconds, SetIsAuthorized } from './Store';
 import * as firebase from 'firebase';
 import * as App from './App'; 
+import * as AuthHandler from './AuthHandler'; //TODO: this could be a good use for code splitting
 import './style.scss';
+
+// Export firebase to the window for easier init
+window["firebase"] = firebase;
 
 function watchValuesForRedux() {
     setTimeout(() => { // Example
@@ -24,5 +28,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // TODO: more secure auth
     const auth = firebase.auth();
-    auth.signInAnonymously().then(watchValuesForRedux);
+    if (!auth.currentUser) {
+        AuthHandler.handleLogin(watchValuesForRedux);
+    }
+    else {
+        watchValuesForRedux();
+    }
 });
+

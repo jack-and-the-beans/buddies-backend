@@ -1,6 +1,5 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin')
-const ScriptExtHtmlWebpackPlugin = require('script-ext-html-webpack-plugin');
 
 module.exports = {
   mode: "development",
@@ -30,17 +29,11 @@ module.exports = {
       },
     ]
   },
-  externals: {
-    firebase: "firebase",
-  },
   plugins: [
     new HtmlWebpackPlugin({
       title: "Buddies",
       hash: true,
       template: "index.html"
-    }),
-    new ScriptExtHtmlWebpackPlugin({
-      defaultAttribute: "defer"
     }),
   ],
 };

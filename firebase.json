@@ -18,7 +18,8 @@
       "**/node_modules/**"
     ],
     "predeploy": [
-      "sh build"
+      "sh build",
+      "cp -r web-dev/static web-output"
     ],
     "rewrites": [
       {
