@@ -6,21 +6,27 @@ import update from 'immutability-helper';
 // |  STATE  |
 // -----------
 export type State = {
-    hasBeenOpenForMoreThan5Seconds: boolean // example
-    isAuthorized: boolean
+    user: {
+        isAdmin: boolean
+        isAuthorized: boolean
+        isLoading: boolean
+    },
 };
 
 const initialState: State = {
-    hasBeenOpenForMoreThan5Seconds: false,
-    isAuthorized: false,
+    user: {
+        isAdmin: false,
+        isAuthorized: false,
+        isLoading: true,
+    },
 };
 
 
 // -----------
 // | ACTIONS |
 // -----------
-export const SetHasBeenOpenForMoreThan5Seconds = CreateAction("SetHasBeenOpenForMoreThan5Seconds", props<{
-    hasBeenOpenForMoreThan5Seconds: boolean
+export const SetUserData = CreateAction("SetUserData", props<{
+    isAdmin: boolean
 }>());
 
 export const SetIsAuthorized = CreateAction("SetIsAuthorized", props<{
@@ -28,22 +34,28 @@ export const SetIsAuthorized = CreateAction("SetIsAuthorized", props<{
 }>());
 
 
-type Action = typeof SetHasBeenOpenForMoreThan5Seconds.action 
+type Action = typeof SetUserData.action 
     | typeof SetIsAuthorized.action;
-
 
 // -----------
 // | REDUCER |
 // -----------
 function reducer(state: State = initialState, action: Action) {
     switch (action.type) {
-        case SetHasBeenOpenForMoreThan5Seconds.type:
+        case SetUserData.type:
             return update(state, {
-                hasBeenOpenForMoreThan5Seconds: { $set: action.hasBeenOpenForMoreThan5Seconds },
+                user: {
+                    isAdmin: { $set: action.isAdmin },
+                    isAuthorized: { $set: true },
+                    isLoading: { $set: false },
+                },
             } as any);
         case SetIsAuthorized.type:
             return update(state, {
-                isAuthorized: { $set: action.isAuthorized },
+                user: {
+                    isAuthorized: { $set: action.isAuthorized },
+                    isLoading: { $set: action.isAuthorized },
+                }
             } as any);
         default: 
             return state;

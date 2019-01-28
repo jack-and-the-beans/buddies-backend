@@ -4,32 +4,55 @@ import { store, State } from './Store';
 import { Provider, connect } from 'react-redux';
 import * as _ from 'lodash';
 import * as firebase from 'firebase';
+import * as AuthHandler from './AuthHandler';
 import FlipMove from 'react-flip-move';
 
 type AppProps = {
-    hasBeenOpenForMoreThan5Seconds: boolean // example
     isAuthorized: boolean
+    isAdmin: boolean
 };
 
-class App extends React.PureComponent<AppProps> {
-   private getTimerSection() {
-        if (this.props.hasBeenOpenForMoreThan5Seconds) {
-            return <div>The app has been open for more than 5 seconds!</div>
-        }
+function AppHeader(props: { isAuthorized: boolean }) {
+    return (
+        <header>
+            <h1>Buddies Admin Portal</h1>
+            {
+                props.isAuthorized
+                ? <button onClick={AuthHandler.signOut}>Sign-Out</button>
+                : null
+            }
+        </header>
+    );
+}
 
-        return (
-            <div>Wait for 5 seconds to pass...</div>
-        );
-    }
+function AppContent(props: AppProps) {
+    if (!props.isAuthorized) 
+        return (<AuthHandler.Authorizer />);
 
-    render() {
-        if (!this.props.isAuthorized)
-            return null;
-
+    if (!props.isAdmin)
         return (
             <div>
+                <div>Sorry, it doesn't look like you're an admin :(</div>
                 <div>UID: {firebase.auth().currentUser!.uid}</div>
-                {this.getTimerSection()}
+            </div>
+        );
+
+    return (
+        <div>
+            <div>You're logged in as an admin.</div>
+            <div>UID: {firebase.auth().currentUser!.uid}</div>
+        </div>
+    );
+}
+
+class App extends React.PureComponent<AppProps> {
+    render() {
+        return (
+            <div>
+                <AppHeader isAuthorized={this.props.isAuthorized} />
+                <div className="content">
+                    <AppContent {...this.props} />
+                </div>
             </div>
         );
     }
@@ -37,8 +60,8 @@ class App extends React.PureComponent<AppProps> {
 
 function mapStateToProps(state: State): AppProps {
     return {
-        hasBeenOpenForMoreThan5Seconds: state.hasBeenOpenForMoreThan5Seconds,
-        isAuthorized: state.isAuthorized,
+        isAuthorized: state.user.isAuthorized,
+        isAdmin: state.user.isAdmin,
     }
 }
 

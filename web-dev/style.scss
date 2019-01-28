@@ -1,3 +1,36 @@
+* {
+    box-sizing: border-box;
+}
+
 body {
     background-color: #f8f8f8;
+    margin: 0;
+    font-size: 16px;
+}
+
+header {
+    background-color: #d4d4ff;
+    padding: 15px;
+    box-shadow: 0 2px 14px 0px #4d4d9e;
+
+    button {
+        float: right;
+        padding: 11px 27px;
+    }
+}
+
+h1 {
+    font-family: sans-serif;
+    font-weight: 100;
+    font-size: 2em;
+    margin: 0;
+    display: inline-block;
+}
+
+.content {
+    padding: 20px;
+}
+
+.help-msg {
+    color: #444;
 }

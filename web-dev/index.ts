@@ -1,20 +1,44 @@
-import { store, SetHasBeenOpenForMoreThan5Seconds, SetIsAuthorized } from './Store';
+import { store, SetUserData, SetIsAuthorized } from './Store';
 import * as firebase from 'firebase';
 import * as App from './App'; 
-import * as AuthHandler from './AuthHandler'; //TODO: this could be a good use for code splitting
 import './style.scss';
 
 // Export firebase to the window for easier init
 window["firebase"] = firebase;
 
-function watchValuesForRedux() {
-    setTimeout(() => { // Example
-        store.dispatch(SetHasBeenOpenForMoreThan5Seconds({ 
-            hasBeenOpenForMoreThan5Seconds: true,
-        }));
-    }, 5000);
+function load(ref: firebase.firestore.DocumentReference, callback: (data?: any) => void) {
+    ref.get().then(snapshot => callback(snapshot.data()));
+    return ref.onSnapshot({
+        next: snapshot => callback(snapshot.data())
+    });
+}
 
+function watchValuesForRedux(): () => void {
+    var currentUser = firebase.auth().currentUser;
+    
+    if (!currentUser) {
+        store.dispatch(SetIsAuthorized({ isAuthorized: false }));
+        return () => {};
+    }
+    
     store.dispatch(SetIsAuthorized({ isAuthorized: true }));
+
+    var db = firebase.firestore();
+
+    var cancelCallbacks = [
+        load(
+            db.collection("users").doc(currentUser.uid),
+            (user?: User) => {
+                if (user) {
+                    store.dispatch(SetUserData({
+                        isAdmin: user.is_admin || false
+                    }));
+                }
+            }
+        ),
+    ];
+
+    return () => cancelCallbacks.forEach(cc => cc());
 }
 
 function renderApp() {
@@ -26,13 +50,13 @@ function renderApp() {
 document.addEventListener('DOMContentLoaded', function() {
     renderApp();
 
-    // TODO: more secure auth
-    const auth = firebase.auth();
-    if (!auth.currentUser) {
-        AuthHandler.handleLogin(watchValuesForRedux);
-    }
-    else {
-        watchValuesForRedux();
-    }
+    var cancelLast: (() => void)| null = null;
+
+    firebase.auth().onAuthStateChanged(function() {
+        if (cancelLast)
+            cancelLast();
+        
+        cancelLast = watchValuesForRedux();
+      });
 });
 
