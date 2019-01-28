@@ -5,20 +5,32 @@ import update from 'immutability-helper';
 // -----------
 // |  STATE  |
 // -----------
+export type LoadingInfo = {
+    app: boolean
+    topics: boolean
+    user: boolean
+}
+
 export type State = {
+    loading: LoadingInfo
     user: {
         isAdmin: boolean
         isAuthorized: boolean
-        isLoading: boolean
     },
+    topics: Topic[]
 };
 
 const initialState: State = {
+    loading: {
+        app: true,
+        topics: true,
+        user: true,
+    },
     user: {
         isAdmin: false,
         isAuthorized: false,
-        isLoading: true,
     },
+    topics: [],
 };
 
 
@@ -33,9 +45,14 @@ export const SetIsAuthorized = CreateAction("SetIsAuthorized", props<{
     isAuthorized: boolean
 }>());
 
+export const SetTopics = CreateAction("SetTopics", props<{
+    topics: Topic[] 
+}>());
+
 
 type Action = typeof SetUserData.action 
-    | typeof SetIsAuthorized.action;
+    | typeof SetIsAuthorized.action
+    | typeof SetTopics.action;
 
 // -----------
 // | REDUCER |
@@ -44,19 +61,30 @@ function reducer(state: State = initialState, action: Action) {
     switch (action.type) {
         case SetUserData.type:
             return update(state, {
+                loading: {
+                    user: { $set: false },
+                },
                 user: {
                     isAdmin: { $set: action.isAdmin },
                     isAuthorized: { $set: true },
-                    isLoading: { $set: false },
                 },
             } as any);
         case SetIsAuthorized.type:
             return update(state, {
+                loading: {
+                    app: { $set: false },
+                },
                 user: {
                     isAuthorized: { $set: action.isAuthorized },
-                    isLoading: { $set: action.isAuthorized },
                 }
             } as any);
+            case SetTopics.type:
+                return update(state, {
+                    loading: {
+                        topics: { $set: false },
+                    },
+                    topics: { $set: action.topics },
+                } as any);
         default: 
             return state;
     }
