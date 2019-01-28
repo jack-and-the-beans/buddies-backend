@@ -30,7 +30,7 @@ function AppHeader(props: { isAuthorized: boolean }) {
 
 enum ContentMode {
     Topics = 0,
-    EXAMPLE_OTHER = 1,
+    Reports = 1,
 }
 
 class AppContent extends React.Component<AppProps, {mode: ContentMode}> {
@@ -39,15 +39,16 @@ class AppContent extends React.Component<AppProps, {mode: ContentMode}> {
     }
 
     private buttonFor(mode: ContentMode, name: string) {
-        <button type="button" className={this.state.mode === mode ? "selected" : ""}>{name}</button>
+        const click = () => this.setState({ mode });
+        return <button type="button" onClick={click} className={this.state.mode === mode ? "selected" : ""}>{name}</button>
     }
 
     private renderBody() {
         switch(this.state.mode) {
             case ContentMode.Topics:
                 return <EditTopics onCreateTopic={TopicService.createTopic} topics={this.props.topics} />
-            case ContentMode.EXAMPLE_OTHER:
-                return <div>Example</div>;
+            case ContentMode.Reports:
+                return <div>Not Implemented</div>;
         }
     }
 
@@ -71,9 +72,9 @@ class AppContent extends React.Component<AppProps, {mode: ContentMode}> {
             <div>
                 <div className="button-group" style={{ textAlign: "center" }}>
                     {this.buttonFor(ContentMode.Topics, "Topics")}
-                    {this.buttonFor(ContentMode.EXAMPLE_OTHER, "EXAMPLE - Other")}
+                    {this.buttonFor(ContentMode.Reports, "Reports")}
                 </div>
-                
+
                 {this.renderBody()}
             </div>
         );
@@ -107,7 +108,6 @@ function mapStateToProps(state: State): AppProps {
 }
 
 export function renderIn(container: Element) {
-
 	const ConnectedApp = connect(mapStateToProps)(App);
 
 	ReactDOM.render((

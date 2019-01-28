@@ -37,11 +37,10 @@ h1 {
     color: #444;
 }
 
-input:not([type="radio"]):not([type="checkbox"]),
+input,
 select,
 textarea {
     border: 1px solid #ddd;
-    height: 27px;
     padding: 5px;
     box-sizing: border-box;
     width: 100%;
@@ -50,7 +49,7 @@ textarea {
     border-radius: 3px;
 
     &:focus {
-        border: 1px solid #00c1ff;
+        border-color: #00c1ff;
         outline: none;
     }
 
@@ -83,6 +82,10 @@ textarea {
         font-weight: normal;
         font-size: 16px;
         margin: 0 0 8px;
+    }
+
+    img {
+        width: 100%;
     }
     
     h1 {
@@ -145,7 +148,7 @@ button {
     vertical-align: bottom;
 
     &:focus {
-        border: 1px solid #00c1ff;
+        border-color: #00c1ff;
     }
 
     &:hover, &:focus {
