@@ -12,3 +12,13 @@ type User = {
     blocked_by : string[]
     date_joined : Date
 }
+
+type Topic = {
+    name : string
+    image_url : string
+}
+
+type TopicToCreate = {
+    imageFile: File | null
+    name: string
+}

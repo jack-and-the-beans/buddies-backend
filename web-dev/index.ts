@@ -1,4 +1,4 @@
-import { store, SetUserData, SetIsAuthorized } from './Store';
+import { store, SetUserData, SetTopics, SetIsAuthorized } from './Store';
 import * as firebase from 'firebase';
 import * as App from './App'; 
 import './style.scss';
@@ -6,11 +6,24 @@ import './style.scss';
 // Export firebase to the window for easier init
 window["firebase"] = firebase;
 
-function load(ref: firebase.firestore.DocumentReference, callback: (data?: any) => void) {
-    ref.get().then(snapshot => callback(snapshot.data()));
-    return ref.onSnapshot({
-        next: snapshot => callback(snapshot.data())
-    });
+function loadCollection(ref: firebase.firestore.CollectionReference, callback: (data?: any[]) => void) {
+    const useCallback = (snapshot: firebase.firestore.QuerySnapshot) => 
+        callback(snapshot.docs.map(d => d.data()));
+
+    // Call now and listen for changes
+    ref.get().then(useCallback).catch(
+        console.log
+    );
+    return ref.onSnapshot({ next: useCallback });
+}
+
+function loadDoc(ref: firebase.firestore.DocumentReference, callback: (data?: any) => void) {
+    const useCallback = (snapshot: firebase.firestore.DocumentSnapshot) => 
+        callback(snapshot.data());
+
+    // Call now and listen for changes
+    ref.get().then(useCallback);
+    return ref.onSnapshot({ next: useCallback });
 }
 
 function watchValuesForRedux(): () => void {
@@ -26,13 +39,21 @@ function watchValuesForRedux(): () => void {
     var db = firebase.firestore();
 
     var cancelCallbacks = [
-        load(
+        loadDoc(
             db.collection("users").doc(currentUser.uid),
             (user?: User) => {
                 if (user) {
                     store.dispatch(SetUserData({
                         isAdmin: user.is_admin || false
                     }));
+                }
+            }
+        ),
+        loadCollection(
+            db.collection("topics"),
+            (topics? : Topic[]) => {
+                if (topics) {
+                    store.dispatch(SetTopics({ topics }));
                 }
             }
         ),

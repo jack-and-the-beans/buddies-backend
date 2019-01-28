@@ -15,7 +15,8 @@
     "ignore": [
       "firebase.json",
       "**/.*",
-      "**/node_modules/**"
+      "**/node_modules/**",
+      "**/__/**"
     ],
     "predeploy": [
       "sh build",
