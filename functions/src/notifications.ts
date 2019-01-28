@@ -1,7 +1,7 @@
 import { firestore } from 'firebase-functions'
 import * as admin from 'firebase-admin'
 import refs from '../../firestoreRefs.js'
-admin.initializeApp() // Uses config from cloud env. variables by default
+try { admin.initializeApp() } catch (e) {}
 
 
 export const onActivityCreation = firestore.document('activities/{activityId}').onCreate(async (snap, context) => {
