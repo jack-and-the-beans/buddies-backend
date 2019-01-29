@@ -5,7 +5,7 @@ try { admin.initializeApp() } catch (e) {}
 
 const db = admin.firestore();
 
-async function blockUser(blocker_id: string, blocked_id: string){
+export async function blockUser(blocker_id: string, blocked_id: string): Promise<void> {
     //use a batch to atomically update both users, works offline
     var batch = db.batch();
     var blockerRef = db.collection("users").doc(blocker_id);
@@ -18,15 +18,15 @@ async function blockUser(blocker_id: string, blocked_id: string){
         blocked_by: admin.firestore.FieldValue.arrayUnion(blocker_id)
     });
 
-    return batch.commit().then((success) => {
+    try {
+        await batch.commit();
         console.log(`${blocker_id} successfully blocked ${blocked_id}`);
-    }, 
-    (error) => {
+    } catch(e) {
         console.error(`${blocker_id} failed blocking ${blocked_id}`);
-        console.error(error);
-    })
+        console.error(e);
+    }
 }
 
-export const blockUserHTTPS = functions.https.onCall((data, context) => {
-    blockUser("Y1VnYNcmbPZrpQe53zs8byWpYaG2","Y1VnYNcmbPZrpQe53zs8byWpYaG2");
+export const blockUserHTTPS = functions.https.onCall(async (data, context) => {
+    await blockUser("Y1VnYNcmbPZrpQe53zs8byWpYaG2","Y1VnYNcmbPZrpQe53zs8byWpYaG2");
 })
