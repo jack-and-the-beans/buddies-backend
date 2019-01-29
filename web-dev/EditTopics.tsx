@@ -1,24 +1,23 @@
 import * as React from 'react';
-import FlipMove from 'react-flip-move';
 import * as _ from 'lodash';
 
-function Topic(props: { topic: Topic, onDelete: (id: string) => void }) {
+function TopicCard(props: { topic: Topic, onDelete: (id: string) => void }) {
     return (
         <div className="card">
             <div className="top-area">
                 <h1>{props.topic.name}</h1>
                 <button onClick={() => props.onDelete(props.topic.id)}>Delete</button>
             </div>
-            <img src={props.topic.image_url} />
+            <img className="card-content" src={props.topic.image_url} />
         </div>
     );
 }
 
-function Topic__Loading() {
+function TopicCard__Loading() {
     return (
         <div className="card">
             <div className="load-block"></div>
-            <div className="load-block--large"></div>
+            <div className="card-content load-block--large"></div>
         </div>
     );
 }
@@ -93,9 +92,7 @@ export class EditTopics extends React.PureComponent<EditTopicsProps> {
         return (
             <div>
                 <CreateTopic onCreate={this.props.onCreateTopic} key="__Create" />
-                <FlipMove>
-                    {this.props.topics.map(t => <Topic topic={t} key={t.id} onDelete={this.props.onDeleteTopic}/>)}
-                </FlipMove>
+                {this.props.topics.map(t => <TopicCard topic={t} key={t.id} onDelete={this.props.onDeleteTopic} />)}
             </div>
         );
     }
@@ -105,7 +102,7 @@ export function EditTopics__Loading() {
     return (
         <div>
             <CreateTopic onCreate={this.props.onCreateTopic} key="__Create" />
-            {_.times(5, n => <Topic__Loading key={n}/>)}
+            {_.times(5, n => <TopicCard__Loading key={n}/>)}
         </div>
     );
 }
