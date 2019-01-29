@@ -50,7 +50,6 @@ function watchValuesForRedux(): () => void {
         loadCollection(
             db.collection("topics"),
             (topics? : Topic[]) => {
-                console.log('topics')
                 if (topics) {
                     store.dispatch(SetTopics({ topics }));
                 }
