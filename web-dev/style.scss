@@ -107,6 +107,30 @@ textarea {
         display: inline;
         white-space: pre-wrap;
     }
+
+    .top-area {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: flex-start;
+        margin-bottom: 10px;
+        h1 {
+            display: inline-block;
+        }
+        button {
+            margin-left: auto;
+            width: 150px;
+            height: 30px;
+            border-radius: 4px;
+            border: 1px solid red;
+            color: red;
+            background-color: white;
+        }
+        button:hover {
+            background-color: red;
+            color: white;
+        }
+    }
 }
 
 .field {

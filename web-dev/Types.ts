@@ -16,6 +16,7 @@ type User = {
 type Topic = {
     name : string
     image_url : string
+    id : string
 }
 
 type TopicToCreate = {

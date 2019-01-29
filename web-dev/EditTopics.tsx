@@ -1,10 +1,13 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 
-function TopicCard(props: { topic: Topic }) {
+function TopicCard(props: { topic: Topic, onDelete: (id: string) => void }) {
     return (
         <div className="card">
-            <h1>{props.topic.name}</h1>
+            <div className="top-area">
+                <h1>{props.topic.name}</h1>
+                <button onClick={() => props.onDelete(props.topic.id)}>Delete</button>
+            </div>
             <img className="card-content" src={props.topic.image_url} />
         </div>
     );
@@ -80,7 +83,8 @@ export class CreateTopic extends React.PureComponent<{ onCreate(toCreate: TopicT
 
 type EditTopicsProps = {
     topics: Topic[]
-    onCreateTopic(topicToCreate: TopicToCreate): Promise<any>;
+    onCreateTopic(topicToCreate: TopicToCreate): Promise<any>
+    onDeleteTopic(topicId: string): void
 }
 
 export class EditTopics extends React.PureComponent<EditTopicsProps> {
@@ -88,7 +92,7 @@ export class EditTopics extends React.PureComponent<EditTopicsProps> {
         return (
             <div>
                 <CreateTopic onCreate={this.props.onCreateTopic} key="__Create" />
-                {this.props.topics.map(t => <TopicCard topic={t} key={"topic_" + t.image_url} />)}
+                {this.props.topics.map(t => <TopicCard topic={t} key={t.id} onDelete={this.props.onDeleteTopic} />)}
             </div>
         );
     }

@@ -8,22 +8,20 @@ window["firebase"] = firebase;
 
 function loadCollection(ref: firebase.firestore.CollectionReference, callback: (data?: any[]) => void) {
     const useCallback = (snapshot: firebase.firestore.QuerySnapshot) => 
-        callback(snapshot.docs.map(d => d.data()));
+        callback(snapshot.docs.map(d => {
+            const data = d.data()
+            data.id = d.id
+            return data
+        }));
 
-    // Call now and listen for changes
-    ref.get().then(useCallback).catch(
-        console.log
-    );
-    return ref.onSnapshot({ next: useCallback });
+    return ref.onSnapshot(useCallback);
 }
 
 function loadDoc(ref: firebase.firestore.DocumentReference, callback: (data?: any) => void) {
     const useCallback = (snapshot: firebase.firestore.DocumentSnapshot) => 
         callback(snapshot.data());
 
-    // Call now and listen for changes
-    ref.get().then(useCallback);
-    return ref.onSnapshot({ next: useCallback });
+    return ref.onSnapshot(useCallback);
 }
 
 function watchValuesForRedux(): () => void {

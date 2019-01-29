@@ -1,10 +1,12 @@
 {
-  "name": "beans-buddiesd",
+  "name": "beans-buddies",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "webpack-dev-server",
+    "deploy": "firebase deploy --only hosting"
   },
   "repository": {
     "type": "git",
