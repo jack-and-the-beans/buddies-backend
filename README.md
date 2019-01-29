@@ -1,5 +1,12 @@
 ## Functions
 
+### Algolia:
+We have our Algolia app ID and API key setup as environment variables in cloud functions. To update that configuration, run the following command from the terminal, replacing `xxx`, `yyy`, `zzz` with the correct values from the Algolia console.
+
+```sh
+firebase functions:config:set algolia.app_id="xxx" algolia.api_key="yyy" algolia.search_api_key="zzz"
+```
+
 ## Admin Portal
 
 To develop:

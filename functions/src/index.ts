@@ -7,3 +7,4 @@ admin.firestore().settings(settings)
 // Export all cloud functions from this file:
 export * from './blocking'
 export * from './notifications'
+export * from './algoliaSync'
