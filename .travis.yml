@@ -10,6 +10,6 @@ before_install:
 
 # Uploads test coverage to codecov
 after_success:
-  - bash <(curl -s https://codecov.io/bash)
+  - npm run report-coverage
 
 after_script: cd ..
