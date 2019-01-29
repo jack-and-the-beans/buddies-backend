@@ -1,8 +1,7 @@
 import * as React from 'react';
-import FlipMove from 'react-flip-move';
 import * as _ from 'lodash';
 
-function Topic(props: { topic: Topic }) {
+function TopicCard(props: { topic: Topic }) {
     return (
         <div className="card">
             <h1>{props.topic.name}</h1>
@@ -11,7 +10,7 @@ function Topic(props: { topic: Topic }) {
     );
 }
 
-function Topic__Loading() {
+function TopicCard__Loading() {
     return (
         <div className="card">
             <div className="load-block"></div>
@@ -89,9 +88,7 @@ export class EditTopics extends React.PureComponent<EditTopicsProps> {
         return (
             <div>
                 <CreateTopic onCreate={this.props.onCreateTopic} key="__Create" />
-                <FlipMove>
-                    {this.props.topics.map(t => <Topic topic={t} key={t.name} />)}
-                </FlipMove>
+                {this.props.topics.map(t => <TopicCard topic={t} key={"topic_" + t.image_url} />)}
             </div>
         );
     }
@@ -101,7 +98,7 @@ export function EditTopics__Loading() {
     return (
         <div>
             <CreateTopic onCreate={this.props.onCreateTopic} key="__Create" />
-            {_.times(5, n => <Topic__Loading key={n}/>)}
+            {_.times(5, n => <TopicCard__Loading key={n}/>)}
         </div>
     );
 }
