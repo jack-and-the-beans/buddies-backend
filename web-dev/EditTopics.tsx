@@ -5,7 +5,7 @@ function TopicCard(props: { topic: Topic }) {
     return (
         <div className="card">
             <h1>{props.topic.name}</h1>
-            <img src={props.topic.image_url} />
+            <img className="card-content" src={props.topic.image_url} />
         </div>
     );
 }
@@ -14,7 +14,7 @@ function TopicCard__Loading() {
     return (
         <div className="card">
             <div className="load-block"></div>
-            <div className="load-block--large"></div>
+            <div className="card-content load-block--large"></div>
         </div>
     );
 }
