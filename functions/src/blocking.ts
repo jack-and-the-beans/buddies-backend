@@ -24,9 +24,10 @@ export async function blockUser(blocker_id: string, blocked_id: string): Promise
     } catch(e) {
         console.error(`${blocker_id} failed blocking ${blocked_id}`);
         console.error(e);
+        throw e;
     }
 }
 
-export const blockUserHTTPS = functions.https.onCall(async (data, context) => {
-    await blockUser("Y1VnYNcmbPZrpQe53zs8byWpYaG2","Y1VnYNcmbPZrpQe53zs8byWpYaG2");
+export const blockUserOnCall = functions.https.onCall(async (data, context) => {
+    await blockUser(data.blocker_id, data.blocked_id);
 })
