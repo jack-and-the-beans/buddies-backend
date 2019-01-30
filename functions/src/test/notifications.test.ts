@@ -5,6 +5,19 @@ import 'mocha'
 
 import * as notifications from '../notifications'
 
+const test = require('firebase-functions-test')({
+    databaseURL: "https://beans-buddies-dev.firebaseio.com",
+    storageBucket: "beans-buddies-dev.appspot.com",
+    projectId: "beans-buddies-dev",
+}, 'beans-buddies-dev.json.secret');
+test.mockConfig({
+    algolia: {
+        app_id: 'id',
+        api_key: 'key',
+        search_api_key: 'search',
+    }
+})
+
 // NOTE: The `@ts-ignore` statements in this file are because much of the data
 // does not fit the shape of the expected data. This is what we want, because
 // we're trying to test the edge cases where the data doesn't fit what's expected.

@@ -6,14 +6,16 @@ import * as constants from './constants'
 const client = algoliasearch(constants.ALGOLIA_APP_ID, constants.ALGOLIA_ADMIN_API_KEY)
 
 // Triggered on create, update, and delete:
-export const sendActivityDataToAlgolia = functions.firestore.document('activities/{activity_id}').onWrite((change, context) => {
-  return algoliaSync<AlgoliaActivity>(client.initIndex(constants.ACTIVITY_INDEX_NAME), change, getAlgoliaActivityData, hasActivityChanged)
-})
+export function activityDataHandler (change: functions.Change<FirebaseFirestore.DocumentSnapshot>, context: functions.EventContext) {
+  // @ts-ignore
+  return exports.algoliaSync<AlgoliaActivity>(client.initIndex(constants.ACTIVITY_INDEX_NAME), change, getAlgoliaActivityData, hasActivityChanged)
+}
 
 // Triggered on create, update, and delete:
-export const sendUserDataToAlgolia = functions.firestore.document('activities/{activity_id}').onWrite((change, context) => {
-  return algoliaSync<AlgoliaUser>(client.initIndex(constants.USER_INDEX_NAME), change, getAlgoliaUserData, hasUserChanged)
-})
+export function userDataHandler (change: functions.Change<FirebaseFirestore.DocumentSnapshot>, context: functions.EventContext) {
+  // @ts-ignore
+  return exports.algoliaSync<AlgoliaUser>(client.initIndex(constants.USER_INDEX_NAME), change, getAlgoliaUserData, hasUserChanged)
+}
 
 // Creates, updates, or deletes objects in the given Algolia index based on the
 // data from the document change. Utilizes dataFunc and compareFunc respectively
