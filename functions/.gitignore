@@ -1,7 +1,9 @@
 ## Compiled JavaScript files
 **/*.js
 **/*.js.map
-*.key.*
+
+## Private/secure filesbea
+*.secret
 
 # Typescript v1 declaration files
 typings/

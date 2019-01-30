@@ -8,7 +8,7 @@ const test = require('firebase-functions-test')({
     databaseURL: "https://beans-buddies-dev.firebaseio.com",
     storageBucket: "beans-buddies-dev.appspot.com",
     projectId: "beans-buddies-dev",
-}, 'beans-buddies-dev.key.json');
+}, 'beans-buddies-dev.json.secret');
 
 describe("Block User Typescript func", () => {
     let db: FirebaseFirestore.Firestore;

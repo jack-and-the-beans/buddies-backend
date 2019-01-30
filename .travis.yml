@@ -1,5 +1,11 @@
 language: node_js
 
+node_js:
+  - '8'
+
+before_install:
+  openssl aes-256-cbc -K $encryption_key -iv $encryption_iv -in ./functions/beans-buddies-dev.json.secret.enc -out ./functions/beans-buddies-dev.json.secret -d
+
 
 # Uploads test coverage to codecov
 after_success:
