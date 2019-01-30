@@ -8,7 +8,7 @@ const db = admin.firestore();
 export async function block(type: string, blocker_id: string, blocked_id: string): Promise<void> {
 
     //use a batch to atomically update both users, works offline
-    var batch = db.batch();
+    const batch = db.batch();
 
     if(type == "user"){
         const blockerRef = db.collection("users").doc(blocker_id);

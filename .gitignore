@@ -67,3 +67,11 @@ node_modules/
 
 # dotenv environment variables file
 .env
+
+# This stores secure environment variables for the local env:
+functions/.runtimeconfig.json
+
+# Travis/Codecov:
+.nyc_output
+coverage
+*.lcov

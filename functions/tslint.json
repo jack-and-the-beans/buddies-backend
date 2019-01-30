@@ -54,7 +54,7 @@
 
     // Do not allow any imports for modules that are not in package.json. These will almost certainly fail when
     // deployed.
-    "no-implicit-dependencies": true,
+    "no-implicit-dependencies": [true, "dev"],
 
     // The 'this' keyword can only be used inside of classes.
     "no-invalid-this": true,
@@ -84,14 +84,14 @@
     "no-empty-interface": {"severity": "warning"},
 
     // Warn when an import will have side effects.
-    "no-import-side-effect": {"severity": "warning"},
+    "no-import-side-effect": false,
 
     // Warn when variables are defined with var. Var has subtle meaning that can lead to bugs. Strongly prefer const for
     // most values and let for values that will change.
     "no-var-keyword": {"severity": "warning"},
 
     // Prefer === and !== over == and !=. The latter operators support overloads that are often accidental.
-    "triple-equals": {"severity": "warning"},
+    "triple-equals": [true, "allow-null-check"],
 
     // Warn when using deprecated APIs.
     "deprecation": {"severity": "warning"},
@@ -111,7 +111,7 @@
     "prefer-const": {"severity": "warning"},
 
     // Multi-line object literals and function calls should have a trailing comma. This helps avoid merge conflicts.
-    "trailing-comma": {"severity": "warning"}
+    "trailing-comma": {"severity": "warning"},
   },
 
   "defaultSeverity": "error"

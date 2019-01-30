@@ -1,21 +1,10 @@
-export const algoliaMock = () => ({
-    initIndex: (name: string) => algoliaIndexMock,
-})
-
-export const algoliaIndexMock = {
-    search: (query: any) => Promise.resolve({ hits: testUsers }),
-    addObject: (data: any) => Promise.resolve(),
-    deleteObject: (id: string) => Promise.resolve(),
-    partialUpdateObject: (data: any) => Promise.resolve(),
+export const messagingMock = {
+    send: (message: any) => Promise.resolve({})
 }
 
 export const adminMock = () => ({
     messaging: () => messagingMock
 })
-
-export const messagingMock = {
-    send: (message: any) => Promise.resolve({})
-}
 
 export const testUsersNoteAndBlock: AlgoliaUser[] = [
     { // Remove because there is no token:
@@ -95,6 +84,18 @@ export const testUsersPrefRes: AlgoliaUser[] = [
 
 export const testUsers = testUsersNoteAndBlock.concat(testUsersPref)
 export const testUsersRes = testUsersNoteAndBlockRes.concat(testUsersPrefRes)
+
+// Mock Algolia (search returns test users)
+export const algoliaIndexMock = {
+    search: (query: any) => Promise.resolve({ hits: testUsers }),
+    addObject: (data: any) => Promise.resolve(),
+    deleteObject: (id: string) => Promise.resolve(),
+    partialUpdateObject: (data: any) => Promise.resolve(),
+}
+
+export const algoliaMock = () => ({
+    initIndex: (name: string) => algoliaIndexMock,
+})
 
 // const testStartDate = new Date()
 // const testEndDate = new Date()
