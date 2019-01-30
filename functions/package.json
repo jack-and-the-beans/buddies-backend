@@ -7,7 +7,8 @@
     "shell": "npm run build && firebase functions:shell",
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
-    "logs": "firebase functions:log"
+    "logs": "firebase functions:log",
+    "test": "tsc && mocha lib/test/"
   },
   "main": "lib/index.js",
   "dependencies": {
@@ -15,6 +16,11 @@
     "firebase-functions": "^2.1.0"
   },
   "devDependencies": {
+    "@types/mocha": "^5.2.5",
+    "@types/sinon": "^7.0.5",
+    "firebase-functions-test": "^0.1.6",
+    "mocha": "^5.2.0",
+    "sinon": "^7.2.3",
     "tslint": "^5.12.0",
     "typescript": "^3.2.2"
   },
