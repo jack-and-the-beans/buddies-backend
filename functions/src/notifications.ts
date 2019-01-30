@@ -2,6 +2,8 @@ import { EventContext } from 'firebase-functions'
 import * as admin from 'firebase-admin'
 import * as constants from './constants'
 import * as algoliasearch from 'algoliasearch'
+import { algoliaMock, messagingMock } from './test/mocks'
+
 try { admin.initializeApp() } catch (e) {}
 
 type ActivityData = {
@@ -11,14 +13,15 @@ type ActivityData = {
     coords: FirebaseFirestore.GeoPoint,
 }
 
+const isTestMode = process.env.NODE_ENV === 'test'
+const client = isTestMode ? algoliaMock() : algoliasearch(constants.ALGOLIA_APP_ID, constants.ALGOLIA_SEARCH_API_KEY)
+const messaging = isTestMode ? messagingMock : admin.messaging()
+
 export async function activityCreationHandler(snap: FirebaseFirestore.DocumentSnapshot, context: EventContext) {
     const newData = exports.getActivityData(snap)
     if (!newData) return -1
 
-    const client = algoliasearch(constants.ALGOLIA_APP_ID, constants.ALGOLIA_SEARCH_API_KEY)
-    const index = client.initIndex(constants.USER_INDEX_NAME)
-
-    return exports.sendUsersActivityNotification(newData, index, admin.messaging())
+    return exports.sendUsersActivityNotification(newData, client.initIndex(constants.USER_INDEX_NAME), messaging)
 }
 
 export async function sendUsersActivityNotification(activityData: ActivityData, index: algoliasearch.Index, messageService: admin.messaging.Messaging) {

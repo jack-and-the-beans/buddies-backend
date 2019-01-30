@@ -1,4 +1,4 @@
-export const algoliaMock = (id: string, key: string) => ({
+export const algoliaMock = () => ({
     initIndex: (name: string) => algoliaIndexMock,
 })
 

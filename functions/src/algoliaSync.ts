@@ -1,9 +1,11 @@
 import * as functions from 'firebase-functions'
 import * as algoliasearch from 'algoliasearch'
 import * as constants from './constants'
+import { algoliaMock } from './test/mocks'
 
 // Algolia Setup:
-const client = algoliasearch(constants.ALGOLIA_APP_ID, constants.ALGOLIA_ADMIN_API_KEY)
+const isTestMode = process.env.NODE_ENV === 'test'
+const client = isTestMode ? algoliaMock() : algoliasearch(constants.ALGOLIA_APP_ID, constants.ALGOLIA_SEARCH_API_KEY)
 
 // Triggered on create, update, and delete:
 export function activityDataHandler (change: functions.Change<FirebaseFirestore.DocumentSnapshot>, context: functions.EventContext) {
