@@ -8,7 +8,9 @@
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log",
-    "test": "tsc && mocha lib/test/"
+    "test": "NODE_ENV=test tsc && NODE_ENV=test nyc mocha lib/test/",
+    "report-coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
+    "setup-env": "firebase functions:config:get > .runtimeconfig.json"
   },
   "main": "lib/index.js",
   "dependencies": {
