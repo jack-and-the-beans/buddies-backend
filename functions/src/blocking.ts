@@ -9,7 +9,7 @@ export async function block(type: string, blocker_id: string, blocked_id: string
 
     //use a batch to atomically update both users, works offline
     var batch = db.batch();
-    
+
     if(type == "user"){
         const blockerRef = db.collection("users").doc(blocker_id);
         const blockedRef = db.collection("users").doc(blocked_id);
@@ -30,7 +30,6 @@ export async function block(type: string, blocker_id: string, blocked_id: string
 
     try {
         await batch.commit();
-        console.log(`User ${blocker_id} successfully blocked the ${type} ${blocked_id}`);
     } catch(e) {
         console.error(`User ${blocker_id} failed blocking ${type} ${blocked_id}`);
         console.error(e);
