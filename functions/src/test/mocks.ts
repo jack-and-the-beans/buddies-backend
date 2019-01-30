@@ -3,7 +3,10 @@ export const algoliaMock = (id: string, key: string) => ({
 })
 
 export const algoliaIndexMock = {
-    search: (query: any) => Promise.resolve({ hits: testUsers })
+    search: (query: any) => Promise.resolve({ hits: testUsers }),
+    addObject: (data: any) => Promise.resolve(),
+    deleteObject: (id: string) => Promise.resolve(),
+    partialUpdateObject: (data: any) => Promise.resolve(),
 }
 
 export const adminMock = () => ({
@@ -118,3 +121,55 @@ export const testActivitySnapNull = {
     id: null,
     data: () => null
 }
+
+export const testStringArr1 = ['a', 'b', 'c']
+export const testStringArr2 = ['b', 'a', 'c']
+export const testStringArr3 = ['a', 'b', 'c']
+export const testStringArr4 = ['a', 'b', 'd']
+
+// Test data for algolia sync:
+interface test extends AlgoliaBase {
+    x: string,
+}
+const doc1 = {
+    id: 'a',
+    data: () => ({ x: 'a' })
+}
+const doc2 = {
+    id: 'b',
+    data: () => ({ x: 'b' })
+}
+export const syncTest = {
+    compareFunc: (a: test, b: test) => a.x !== b.x,
+    dataFunc: (doc: typeof doc1): test | null => {
+        if (!doc) return null
+        return {
+            objectID: doc.id,
+            x: doc.data().x
+        }
+    },
+    equalChange: {
+        after: { ...doc1 },
+        before: { ...doc1}
+    },
+    diffChange: {
+        after: { ...doc1 },
+        before: { ...doc2 }
+    },
+    diffArg: {
+        objectID: 'a',
+        x: 'a'
+    },
+    newObject: {
+        after: { ...doc1 },
+    },
+    newArg: {
+        objectID: 'a',
+        x: 'a'
+    },
+    deleteChange: {
+        before: { ...doc1 },
+    },
+    deleteArg: 'a'
+}
+

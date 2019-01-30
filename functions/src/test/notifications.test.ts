@@ -1,6 +1,4 @@
 import * as assert from 'assert'
-// import * as admin from 'firebase-admin'
-// import * as algoliasearch from 'algoliasearch'
 import * as sinon from 'sinon'
 import * as mocks from './mocks'
 import 'mocha'
