@@ -1,4 +1,4 @@
-import { firestore, EventContext } from 'firebase-functions'
+import { EventContext } from 'firebase-functions'
 import * as admin from 'firebase-admin'
 import * as constants from './constants'
 import * as algoliasearch from 'algoliasearch'
@@ -10,8 +10,6 @@ type ActivityData = {
     topicIds: string[],
     coords: FirebaseFirestore.GeoPoint,
 }
-
-export const onActivityCreation = firestore.document('activities/{activityId}').onCreate(activityCreationHandler)
 
 export async function activityCreationHandler(snap: FirebaseFirestore.DocumentSnapshot, context: EventContext) {
     const newData = exports.getActivityData(snap)

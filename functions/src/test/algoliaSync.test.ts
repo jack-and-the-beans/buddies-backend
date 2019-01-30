@@ -5,6 +5,39 @@ import 'mocha'
 
 import * as algolia from '../algoliaSync'
 
+const test = require('firebase-functions-test')({
+  databaseURL: "https://beans-buddies-dev.firebaseio.com",
+  storageBucket: "beans-buddies-dev.appspot.com",
+  projectId: "beans-buddies-dev",
+}, 'beans-buddies-dev.json.secret');
+test.mockConfig({
+  algolia: {
+    app_id: 'id',
+    api_key: 'key',
+    search_api_key: 'search',
+  }
+})
+
+describe('Function Handlers', () => {
+  afterEach(() => {
+    // @ts-ignore
+    algolia.algoliaSync.restore()
+  })
+
+  it('Should call algolia sync on changes to activity data', async () => {
+    const spy = sinon.spy(algolia, 'algoliaSync')
+    // @ts-ignore
+    algolia.activityDataHandler(mocks.syncTest.equalChange, {})
+    assert(spy.calledOnce)
+  })
+  it('Should call algolia sync on changes to user data', async () => {
+    const spy = sinon.spy(algolia, 'algoliaSync')
+    // @ts-ignore
+    algolia.userDataHandler(mocks.syncTest.equalChange, {})
+    assert(spy.calledOnce)
+  })
+})
+
 describe('Algolia Sync', () => {
   afterEach(() => {
     // @ts-ignore
