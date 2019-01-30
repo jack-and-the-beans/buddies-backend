@@ -84,6 +84,9 @@ export function getAlgoliaActivityData(doc: FirebaseFirestore.DocumentSnapshot):
   if (!doc.exists || !data) {
     return null
   }
+  if (!data.location || !data.title || !data.description || !data.start_time || !data.end_time || !data.topic_ids) {
+    return null
+  }
   return {
     objectID: doc.id,
     _geoloc: locationConvert(data.location),

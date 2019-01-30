@@ -7,9 +7,13 @@ before_install:
   - cd functions
   - openssl aes-256-cbc -K $encryption_key -iv $encryption_iv -in beans-buddies-dev.json.secret.enc -out beans-buddies-dev.json.secret -d
 
-
 # Uploads test coverage to codecov
 after_success:
   - npm run report-coverage
 
 after_script: cd ..
+
+# Build pushes to master but not others:
+branches:
+  only: 
+    - master
