@@ -9,7 +9,8 @@ admin.firestore().settings(settings)
 export * from './blocking'
 
 import * as notifications from './notifications'
-export const onActivityCreation = functions.firestore.document('activities/{activityId}').onCreate(notifications.activityCreationHandler)
+export const onActivityCreation = functions.firestore.document('activities/{activity_id}').onCreate(notifications.activityCreationHandler)
+export const onMessageCreation = functions.firestore.document('activities/{activity_id}/chat/{chatId}').onCreate(notifications.newMessageHandler)
 
 import * as algoliaSync from './algoliaSync'
 export const sendActivityDataToAlgolia = functions.firestore.document('activities/{activity_id}').onWrite(algoliaSync.activityDataHandler)

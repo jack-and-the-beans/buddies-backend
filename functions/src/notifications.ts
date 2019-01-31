@@ -3,6 +3,7 @@ import * as admin from 'firebase-admin'
 import * as constants from './constants'
 import * as algoliasearch from 'algoliasearch'
 import { algoliaMock, messagingMock } from './test/mocks'
+import Refs from '../../firestoreRefs'
 
 try { admin.initializeApp() } catch (e) {}
 
@@ -87,5 +88,24 @@ export function createActivityNotification(token: string, activity_id: string): 
             body: "You'll love this activity!"
         },
         data: { activity_id },
+    }
+}
+
+export async function newMessageHandler(snap: FirebaseFirestore.DocumentSnapshot, context: EventContext) {
+    const activity_id = context.params.activity_id
+    // const activityDoc = Refs(admin.firestore()).ch
+}
+
+export function createMessageNotification(token: string, activity_id: string, activityName: string, message: string): admin.messaging.Message {
+    return {
+        token,
+        notification: {
+            title: `New message in ${activityName}:`,
+            body: message,
+        },
+        data: {
+            activity_id: activity_id
+        },
+        apns: { payload: { aps: { 'thread-id': activity_id } } }
     }
 }
