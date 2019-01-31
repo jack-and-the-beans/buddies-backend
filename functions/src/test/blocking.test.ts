@@ -82,9 +82,9 @@ describe("IDs are properly taken from snapshots", () => {
             }
             const newReport = test.firestore.makeDocumentSnapshot(data, 'user_report/test_report');
     
-            let { actor_id, target_id } = blocking.getReportIds('report_by_id', 'reported_user_id', newReport);
-            assert(actor_id == "reporter_user");
-            assert(target_id == "reported_user")
+            const { actor_id, target_id } = blocking.getReportIds('report_by_id', 'reported_user_id', newReport);
+            assert(actor_id === "reporter_user");
+            assert(target_id === "reported_user")
         })
     })
 
@@ -106,9 +106,9 @@ describe("IDs are properly taken from snapshots", () => {
             }
             const newReport = test.firestore.makeDocumentSnapshot(data, 'user_report/test_report');
     
-            let { actor_id, target_id } = blocking.getReportIds('report_by_id', 'reported_activity_id', newReport);
-            assert(actor_id == "reporter_user");
-            assert(target_id == "reported_activity")
+            const { actor_id, target_id } = blocking.getReportIds('report_by_id', 'reported_activity_id', newReport);
+            assert(actor_id === "reporter_user");
+            assert(target_id === "reported_activity")
         })
     })
 })
