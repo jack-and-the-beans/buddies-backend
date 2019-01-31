@@ -17,7 +17,7 @@ describe('Activity creation handler', () => {
         assert(dataSpy.calledOnce)
     })
 
-    it('It returns early if there is no data', async () => {
+    it('Returns early if there is no data', async () => {
         // @ts-ignore
         const res = await notifications.activityCreationHandler(mocks.testActivitySnapNull, {})
         assert.equal(res, -1)

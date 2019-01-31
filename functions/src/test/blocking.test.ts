@@ -19,7 +19,7 @@ describe("Block function", () => {
 
         after(()=> { test.cleanup(); })
 
-        it("Blocking denormalizes for an arbitrary blocker and blockee", async ()=>{
+        it("Denormalizes data for an arbitrary blocker and blockee", async ()=>{
             await blocking.block('user', "blocker_guy", "blocked_guy");
 
             const blockerDoc = await db.collection('users').doc("blocker_guy").get();
@@ -48,7 +48,7 @@ describe("Block function", () => {
 
         after(()=> { test.cleanup(); })
 
-        it("Blocking denormalizes for an arbitrary blocker and blockee", async ()=>{
+        it("Denormalizes data for an arbitrary blocker and blockee", async ()=>{
             await blocking.block('activity', "blocker_guy", "blocked_activity");
 
             const blockerDoc = await db.collection('users').doc("blocker_guy").get();
@@ -75,7 +75,7 @@ describe("IDs are properly taken from snapshots", () => {
             test.cleanup();
         })
     
-        it("Reports use correct IDs to call the block user procecure", ()=>{
+        it("Uses the correct IDs to call the block user procecure", ()=>{
             const data = {
                 "report_by_id": "reporter_user",
                 "reported_user_id": "reported_user",
@@ -99,7 +99,7 @@ describe("IDs are properly taken from snapshots", () => {
             test.cleanup();
         })
     
-        it("Reports use correct IDs to call the block user procecure", ()=>{
+        it("Uses the correct IDs to call the block user procecure", ()=>{
             const data = {
                 "report_by_id": "reporter_user",
                 "reported_activity_id": "reported_activity",
