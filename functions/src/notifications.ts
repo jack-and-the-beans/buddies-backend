@@ -2,7 +2,7 @@ import { EventContext } from 'firebase-functions'
 import * as admin from 'firebase-admin'
 import * as constants from './constants'
 import * as algoliasearch from 'algoliasearch'
-import { algoliaMock, messagingMock } from './test/mocks'
+import { algoliaMock, messagingMock, firestoreMock } from './test/mocks'
 import Refs from '../../firestoreRefs'
 
 try { admin.initializeApp() } catch (e) {}
@@ -17,6 +17,7 @@ type ActivityData = {
 const isTestMode = process.env.NODE_ENV === 'test'
 const client = isTestMode ? algoliaMock() : algoliasearch(constants.ALGOLIA_APP_ID, constants.ALGOLIA_SEARCH_API_KEY)
 const messaging = isTestMode ? messagingMock : admin.messaging()
+const database = isTestMode ? firestoreMock : admin.firestore()
 
 export async function activityCreationHandler(snap: FirebaseFirestore.DocumentSnapshot, context: EventContext) {
     const newData = exports.getActivityData(snap)
@@ -93,11 +94,13 @@ export function createActivityNotification(token: string, activity_id: string): 
 
 export async function newMessageHandler(snap: FirebaseFirestore.DocumentSnapshot, context: EventContext) {
     const activity_id = context.params.activity_id
-    const activityDoc = await Refs(admin.firestore()).activity(activity_id).get()
+    // @ts-ignore because it doesn't like the mock
+    const activityDoc = await Refs(database).activity(activity_id).get()
     const activity = activityDoc.data() as Activity
     const chatMessage = snap.data() as ChatMessage
 
-    const tokens = await getTokensForChatNotification(activity.members, activity.owner_id, admin.firestore())
+    // @ts-ignore because it doesn't like the mock
+    const tokens = await getTokensForChatNotification(activity.members, activity.owner_id, database)
 
     // Send a notification to each token based on the message:
     return Promise.all(tokens.map(async (token: string) => {
@@ -115,17 +118,19 @@ export async function getTokensForChatNotification(userIds: string[], ownerId: s
         return val
     }, []))
     // Get the notification token for each user if the user exists and if the token
-    // is a string that is not empty. Return the array of all tokens:
-    return userDocs.reduce((val: string[], doc: FirebaseFirestore.DocumentSnapshot) => {
+    // is a string that is not empty.
+    const tokens = userDocs.reduce((val: string[], doc: FirebaseFirestore.DocumentSnapshot) => {
         if (doc.exists) {
             const data = doc.data()
-            const token = data ? data.token : null
+            const token = data ? data.notification_token : null
             if (token && typeof token === 'string' && token.length > 0) {
                 val.push(token)
             }
         }
         return val
     }, [])
+    // Remove duplicates and return the array of tokens:
+    return [...new Set(tokens)]
 }
 
 export function createChatNotification(token: string, activity_id: string, title: string, message: string): admin.messaging.Message {
