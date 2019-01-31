@@ -3,7 +3,7 @@ import * as admin from 'firebase-admin'
 import * as constants from './constants'
 import * as algoliasearch from 'algoliasearch'
 import { algoliaMock, messagingMock, firestoreMock } from './test/mocks'
-import Refs from '../../firestoreRefs'
+import Refs from './firestoreRefs'
 
 try { admin.initializeApp() } catch (e) {}
 
@@ -100,7 +100,7 @@ export async function newMessageHandler(snap: FirebaseFirestore.DocumentSnapshot
     const chatMessage = snap.data() as ChatMessage
 
     // @ts-ignore because it doesn't like the mock
-    const tokens = await getTokensForChatNotification(activity.members, activity.owner_id, database)
+    const tokens = await getTokensForChatNotification(activity.members, chatMessage.sender, database)
 
     // Send a notification to each token based on the message:
     return Promise.all(tokens.map(async (token: string) => {
@@ -109,10 +109,12 @@ export async function newMessageHandler(snap: FirebaseFirestore.DocumentSnapshot
     }))
 }
 
-export async function getTokensForChatNotification(userIds: string[], ownerId: string, db: FirebaseFirestore.Firestore): Promise<string[]> {
+export async function getTokensForChatNotification(userIds: string[], senderId: string, db: FirebaseFirestore.Firestore): Promise<string[]> {
+    // Make sure they're unique
+    const user_ids = [...new Set(userIds)]
     // Get the document for each user other than the owner:
-    const userDocs = await Promise.all(userIds.reduce((val: Promise<FirebaseFirestore.DocumentSnapshot>[], memberId: string) => {
-        if (memberId !== ownerId) {
+    const userDocs = await Promise.all(user_ids.reduce((val: Promise<FirebaseFirestore.DocumentSnapshot>[], memberId: string) => {
+        if (memberId !== senderId) {
             val.push(Refs(db).user(memberId).get())
         }
         return val
@@ -122,7 +124,7 @@ export async function getTokensForChatNotification(userIds: string[], ownerId: s
     const tokens = userDocs.reduce((val: string[], doc: FirebaseFirestore.DocumentSnapshot) => {
         if (doc.exists) {
             const data = doc.data()
-            const token = data ? data.notification_token : null
+            const token = data && data.notification_token ? data.notification_token : null
             if (token && typeof token === 'string' && token.length > 0) {
                 val.push(token)
             }

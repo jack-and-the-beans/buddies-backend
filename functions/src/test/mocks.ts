@@ -180,8 +180,8 @@ export const mockActivity = {
         latitude: 10,
         longitude: 10.5
     },
-    members : ['bob', 'alice', 'mallory'],
-    owner_id : ['bob'],
+    members : ['bob', 'alice', 'mallory', 'linux'],
+    owner_id : ['alice'],
     title : 'Security Meetup',
     description : 'We\'ll do security!',
     start_time : new Date(),
@@ -199,10 +199,19 @@ export const mockUsers = {
     },
     mallory: {
         notification_token: 'mallory_t'
+    },
+    steven: { // Does not have notification token
+        name: 'steven'
+    },
+    linux: { // Does not have notification token
+        notification_token: ''
+    },
+    ste5en: {
+        notification_token: 10
     }
 }
 
-export const firestoreMock = () => ({
+export const firestoreMock = {
     collection: (id: string) => {
         if (id === 'activities') { // Will return the testActivity above
             return docGenerator(mockActivity, 'all')
@@ -212,14 +221,26 @@ export const firestoreMock = () => ({
             return null
         }
     }
-})
+}
 
 function docGenerator(data: {[id: string]: Object}, mode: 'all' | 'id') {
     return {
         doc: (id: string) => ({
             get: () => Promise.resolve({
+                exists: mode === 'all' ? true : data[id] != null,
                 data: () => mode === 'all' ? data : data[id]
             })
         })
     }
+}
+
+export const msgMock = {
+    snap: {
+        data: () => ({
+            message: 'Hello there',
+            sender: 'bob',
+            date_sent: new Date(),
+        })
+    },
+    context: {params: {activity_id: 'hello'}}
 }
