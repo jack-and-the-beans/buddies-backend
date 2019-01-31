@@ -93,19 +93,46 @@ export function createActivityNotification(token: string, activity_id: string): 
 
 export async function newMessageHandler(snap: FirebaseFirestore.DocumentSnapshot, context: EventContext) {
     const activity_id = context.params.activity_id
-    // const activityDoc = Refs(admin.firestore()).ch
+    const activityDoc = await Refs(admin.firestore()).activity(activity_id).get()
+    const activity = activityDoc.data() as Activity
+    const chatMessage = snap.data() as ChatMessage
+
+    const tokens = await getTokensForChatNotification(activity.members, activity.owner_id, admin.firestore())
+
+    // Send a notification to each token based on the message:
+    return Promise.all(tokens.map(async (token: string) => {
+        const message = createChatNotification(token, activity_id, `New message in ${activity.title}:`, chatMessage.message)
+        await messaging.send(message)
+    }))
 }
 
-export function createMessageNotification(token: string, activity_id: string, activityName: string, message: string): admin.messaging.Message {
+export async function getTokensForChatNotification(userIds: string[], ownerId: string, db: FirebaseFirestore.Firestore): Promise<string[]> {
+    // Get the document for each user other than the owner:
+    const userDocs = await Promise.all(userIds.reduce((val: Promise<FirebaseFirestore.DocumentSnapshot>[], memberId: string) => {
+        if (memberId !== ownerId) {
+            val.push(Refs(db).user(memberId).get())
+        }
+        return val
+    }, []))
+    // Get the notification token for each user if the user exists and if the token
+    // is a string that is not empty. Return the array of all tokens:
+    return userDocs.reduce((val: string[], doc: FirebaseFirestore.DocumentSnapshot) => {
+        if (doc.exists) {
+            const data = doc.data()
+            const token = data ? data.token : null
+            if (token && typeof token === 'string' && token.length > 0) {
+                val.push(token)
+            }
+        }
+        return val
+    }, [])
+}
+
+export function createChatNotification(token: string, activity_id: string, title: string, message: string): admin.messaging.Message {
     return {
         token,
-        notification: {
-            title: `New message in ${activityName}:`,
-            body: message,
-        },
-        data: {
-            activity_id: activity_id
-        },
+        notification: { title, body: message },
+        data: { activity_id: activity_id },
         apns: { payload: { aps: { 'thread-id': activity_id } } }
     }
 }
