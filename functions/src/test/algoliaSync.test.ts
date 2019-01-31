@@ -11,13 +11,13 @@ describe('Function Handlers', () => {
     algolia.algoliaSync.restore()
   })
 
-  it('Should call algolia sync on changes to activity data', async () => {
+  it('Calls algolia sync on changes to activity data', async () => {
     const spy = sinon.spy(algolia, 'algoliaSync')
     // @ts-ignore
     algolia.activityDataHandler(mocks.syncTest.equalChange, {})
     assert(spy.calledOnce)
   })
-  it('Should call algolia sync on changes to user data', async () => {
+  it('Calls algolia sync on changes to user data', async () => {
     const spy = sinon.spy(algolia, 'algoliaSync')
     // @ts-ignore
     algolia.userDataHandler(mocks.syncTest.equalChange, {})
@@ -34,7 +34,7 @@ describe('Algolia Sync', () => {
     // @ts-ignore
     mocks.algoliaIndexMock.partialUpdateObject.restore()
   })
-  it('Should delete the object from algolia if there is no new data', async () => {
+  it('Deletes the object from algolia if there is no new data', async () => {
     const index = mocks.algoliaIndexMock
     const deleteSpy = sinon.spy(index, 'deleteObject')
     const createSpy = sinon.spy(index, 'addObject')
@@ -51,7 +51,7 @@ describe('Algolia Sync', () => {
     assert(updateSpy.notCalled)
   })
 
-  it('Should add the data to algolia if there is no old data', async () => {
+  it('Adds the data to algolia if there is no old data', async () => {
     const index = mocks.algoliaIndexMock
     const deleteSpy = sinon.spy(index, 'deleteObject')
     const createSpy = sinon.spy(index, 'addObject')
@@ -67,7 +67,7 @@ describe('Algolia Sync', () => {
     assert(deleteSpy.notCalled)
     assert(updateSpy.notCalled)
   })
-  it('Should update the data in algolia if the data has changed', async () => {
+  it('Updates the data in algolia if the data has changed', async () => {
     const index = mocks.algoliaIndexMock
     const deleteSpy = sinon.spy(index, 'deleteObject')
     const createSpy = sinon.spy(index, 'addObject')
@@ -83,7 +83,7 @@ describe('Algolia Sync', () => {
     assert(deleteSpy.notCalled)
     assert(createSpy.notCalled)
   })
-  it('Should do nothing if the data has not changed.', async () => {
+  it('Does nothing if the data has not changed.', async () => {
     const index = mocks.algoliaIndexMock
     const deleteSpy = sinon.spy(index, 'deleteObject')
     const createSpy = sinon.spy(index, 'addObject')
