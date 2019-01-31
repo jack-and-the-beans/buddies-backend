@@ -1,3 +1,4 @@
+
 export const messagingMock = {
     send: (message: any) => Promise.resolve({})
 }
@@ -174,3 +175,51 @@ export const syncTest = {
     deleteArg: 'a'
 }
 
+export const mockActivity = {
+    location : {
+        latitude: 10,
+        longitude: 10.5
+    },
+    members : ['bob', 'alice', 'mallory'],
+    owner_id : ['bob'],
+    title : 'Security Meetup',
+    description : 'We\'ll do security!',
+    start_time : new Date(),
+    end_time : new Date(),
+    topic_ids : ['security'],
+    date_created : new Date(),
+}
+
+export const mockUsers = {
+    bob: {
+        notification_token: 'bob_t'
+    },
+    alice: {
+        notification_token: 'alice_t'
+    },
+    mallory: {
+        notification_token: 'mallory_t'
+    }
+}
+
+export const firestoreMock = () => ({
+    collection: (id: string) => {
+        if (id === 'activities') { // Will return the testActivity above
+            return docGenerator(mockActivity, 'all')
+        } else if (id === 'users') { // Will index into individual users based on 'mockUsers'
+            return docGenerator(mockUsers, 'id')
+        } else {
+            return null
+        }
+    }
+})
+
+function docGenerator(data: {[id: string]: Object}, mode: 'all' | 'id') {
+    return {
+        doc: (id: string) => ({
+            get: () => Promise.resolve({
+                data: () => mode === 'all' ? data : data[id]
+            })
+        })
+    }
+}
