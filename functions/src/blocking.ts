@@ -10,7 +10,7 @@ export async function block(type: string, blocker_id: string, blocked_id: string
     //use a batch to atomically update both users, works offline
     const batch = db.batch();
 
-    if(type == "user"){
+    if(type === "user"){
         const blockerRef = db.collection("users").doc(blocker_id);
         const blockedRef = db.collection("users").doc(blocked_id);
 
@@ -21,7 +21,7 @@ export async function block(type: string, blocker_id: string, blocked_id: string
         batch.update(blockerRef, {
             blocked_users: admin.firestore.FieldValue.arrayUnion(blocked_id)
         });
-    } else if (type == "activity"){
+    } else if (type === "activity"){
         const blockerRef = db.collection("users").doc(blocker_id);
         batch.update(blockerRef, {
             blocked_activities: admin.firestore.FieldValue.arrayUnion(blocked_id)
