@@ -104,7 +104,7 @@ export async function newMessageHandler(snap: FirebaseFirestore.DocumentSnapshot
 
     // Send a notification to each token based on the message:
     return Promise.all(tokens.map(async (token: string) => {
-        const message = createChatNotification(token, activity_id, `New message in ${activity.title}:`, chatMessage.message)
+        const message = createChatNotification(token, activity_id, `${activity.title}`, chatMessage.message)
         await messaging.send(message)
     }))
 }
