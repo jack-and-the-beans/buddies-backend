@@ -1,3 +1,6 @@
+[![codecov](https://codecov.io/gh/jack-and-the-beans/buddies-backend/branch/master/graph/badge.svg)](https://codecov.io/gh/jack-and-the-beans/buddies-backend) 
+[![Build Status](https://travis-ci.org/jack-and-the-beans/buddies-backend.svg?branch=master)](https://travis-ci.org/jack-and-the-beans/buddies-backend)
+
 # Functions
 
 ### Testing
