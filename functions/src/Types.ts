@@ -43,3 +43,24 @@ interface ChatMessage {
     date_sent : Date
     sender : string
 }
+
+interface User {
+    image_url: string,
+    is_admin?: boolean,
+    name: string,
+    bio: string,
+    email?: string,
+    facebook_id?: string,
+    favorite_topics: string[],
+    blocked_users: string[],
+    blocked_by: string[],
+    date_joined: Date,
+    location: {
+        longitude: number,
+        latitude: number,
+    },
+    notification_token: string,
+    chat_read_at: {[activity_id: string]: Date},
+    should_send_joined_activity_notification? : boolean,
+    should_send_activity_suggestion_notification? : boolean,
+}
