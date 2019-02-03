@@ -1,4 +1,4 @@
-import { EventContext } from 'firebase-functions'
+import { EventContext, Change } from 'firebase-functions'
 import * as admin from 'firebase-admin'
 import * as constants from './constants'
 import * as algoliasearch from 'algoliasearch'
@@ -90,6 +90,80 @@ export function createActivityNotification(token: string, activity_id: string): 
         },
         data: { activity_id },
     }
+}
+
+export async function onActivityUsersChanged(change: Change<FirebaseFirestore.DocumentSnapshot>, context: EventContext) {
+    const activity = change.after.data() as Activity
+    const activityId: string = change.after.id
+    const usersBefore = getUsersFromChange(change.before)
+    const usersAfter = getUsersFromChange(change.after)
+
+    if (usersBefore.length !== usersAfter.length) {
+        // If previous users is bigger, then someone left. Sets up data
+        // appropriately based on that fact.
+        const msgBody = usersBefore > usersAfter ? 'Someone has left your activity.' : 'Someone has joined your activity!'
+        const title = activity.title
+        // Gets which user joined or left the activity. changedUser will be that person's UID.
+        const changedUser = getDifferentString(usersBefore, usersAfter)
+        if (changedUser) {
+            // @ts-ignore because it doesn't like the mock database:
+            const tokens = await getTokensForChatNotification(activity.members, changedUser, database)
+            const notificationTask = tokens.map(async (token: string) => {
+                const message = createChatNotification(token, change.after.id, title, msgBody)
+                await messaging.send(message)
+            })
+            // Send a chat message to this chat mentioning that someone
+            // left or joined. Same message as above.
+            const chatTask = sendChatMessage(activityId, msgBody, changedUser)
+            return Promise.all(notificationTask.push(chatTask))
+        }
+    }
+    return 0
+}
+
+// Sends a user left/joined message to the specified activity
+async function sendChatMessage(activityId: string, message: string, sender: string) {
+    // @ts-ignore because it doesn't like the database mock:
+    const chatRef = Refs(database).chat(activityId)
+    await chatRef.add({
+        message,
+        sender,
+        date_sent: new Date(),
+        type: 'user_join_or_leave'
+    })
+}
+
+// Gets the the array of activity members from the activity doc.
+export function getUsersFromChange(doc: FirebaseFirestore.DocumentSnapshot): string[] {
+    const data1 = doc.data()
+    const arr1: string[] = (data1 && data1.members && Array.isArray(data1.members)) ? data1.members : []
+    return arr1
+}
+
+// Returns the first string which is different in the array.
+// Returns null if the arrays are the same length.
+export function getDifferentString(before: string[], after: string[]): string | null {
+    // Get the strings in the same order:
+    before.sort()
+    after.sort()
+    // Someone has been removed:
+    if (before.length > after.length) {
+        for (let i = 0; i < after.length; i++) {
+            if (before[i] !== after[i]) {
+                return before[i]
+            }
+        }
+        return before[before.length - 1]
+    } else if (after.length > before.length) {
+        // Someone has been added:
+        for (let i = 0; i < before.length; i++) {
+            if (before[i] !== after[i]) {
+                return after[i]
+            }
+        }
+        return after[after.length - 1]
+    }
+    return null
 }
 
 export async function newMessageHandler(snap: FirebaseFirestore.DocumentSnapshot, context: EventContext) {
