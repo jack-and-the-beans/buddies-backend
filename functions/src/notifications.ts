@@ -92,31 +92,24 @@ export function createActivityNotification(token: string, activity_id: string): 
     }
 }
 
+// Sends a message to a chat if a user leaves or joins it:
 export async function onActivityUsersChanged(change: Change<FirebaseFirestore.DocumentSnapshot>, context: EventContext) {
-    const activity = change.after.data() as Activity
     const activityId: string = change.after.id
     const usersBefore = getUsersFromChange(change.before)
     const usersAfter = getUsersFromChange(change.after)
 
     if (usersBefore.length !== usersAfter.length) {
-        // If previous users is bigger, then someone left. Sets up data
-        // appropriately based on that fact.
-        const msgBody = usersBefore > usersAfter ? 'Someone has left your activity.' : 'Someone has joined your activity!'
-        const title = activity.title
         // Gets which user joined or left the activity. changedUser will be that person's UID.
         const changedUser = getDifferentString(usersBefore, usersAfter)
-        if (changedUser) {
-            // @ts-ignore because it doesn't like the mock database:
-            const tokens = await getTokensForChatNotification(activity.members, changedUser, database)
-            const notificationTask = tokens.map(async (token: string) => {
-                const message = createChatNotification(token, change.after.id, title, msgBody)
-                await messaging.send(message)
-            })
-            // Send a chat message to this chat mentioning that someone
-            // left or joined. Same message as above.
-            const chatTask = sendChatMessage(activityId, msgBody, changedUser)
-            return Promise.all(notificationTask.push(chatTask))
-        }
+        if (! changedUser) return -1
+
+        // @ts-ignore because it doesn't like the mock
+        const changedUserInfo = await Refs(database).user(changedUser) as User
+
+        // Setup message based on whether they left or joined:
+        const msgBody = `${changedUserInfo.name} has ${usersBefore > usersAfter ? 'left' : 'joined'} your activity.`
+        
+        return sendChatMessage(activityId, msgBody, changedUser)
     }
     return 0
 }
