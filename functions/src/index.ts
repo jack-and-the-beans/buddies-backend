@@ -10,6 +10,7 @@ export * from './blocking'
 
 import * as notifications from './notifications'
 export const onActivityCreation = functions.firestore.document('activities/{activity_id}').onCreate(notifications.activityCreationHandler)
+export const onActivityUsersChange = functions.firestore.document('activities/{activity_id}').onUpdate(notifications.onActivityUsersChanged)
 export const onMessageCreation = functions.firestore.document('activities/{activity_id}/chat/{chatId}').onCreate(notifications.newMessageHandler)
 
 import * as algoliaSync from './algoliaSync'
