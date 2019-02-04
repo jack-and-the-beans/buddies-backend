@@ -1,4 +1,4 @@
-import * as firebase from 'firebase';
+import { storage, firestore } from './firebaseConfig'
 
 const validMimeTypes = [
     "image/png",
@@ -7,8 +7,8 @@ const validMimeTypes = [
 
 export function createTopic(topicToCreate: TopicToCreate) {
     // Dependencies
-    var storage = firebase.storage();
-    var db = firebase.firestore();
+    var storage = storage();
+    var db = firestore();
 
     // Valitade imageFile is selected
     if (!topicToCreate.imageFile)
@@ -37,9 +37,7 @@ export function createTopic(topicToCreate: TopicToCreate) {
 
 export function deleteTopic(id: string) {
     if (!confirm('Are you sure you want to delete this topic?')) return
-    const storage = firebase.storage();
-    const db = firebase.firestore();
-    const fileRef = storage.ref(`topic_pictures/${id}`)
-    const topicRef = db.collection('topics').doc(id)
+    const fileRef = storage().ref(`topic_pictures/${id}`)
+    const topicRef = firestore().collection('topics').doc(id)
     return topicRef.delete().then(() => fileRef.delete())
 }
