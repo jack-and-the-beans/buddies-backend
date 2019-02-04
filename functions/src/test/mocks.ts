@@ -1,4 +1,3 @@
-
 export const messagingMock = {
     send: (message: any) => Promise.resolve({})
 }
@@ -176,23 +175,26 @@ export const syncTest = {
 }
 
 export const mockActivity = {
-    location : {
-        latitude: 10,
-        longitude: 10.5
-    },
-    members : ['bob', 'alice', 'mallory', 'linux'],
-    owner_id : ['alice'],
-    title : 'Security Meetup',
-    description : 'We\'ll do security!',
-    start_time : new Date(),
-    end_time : new Date(),
-    topic_ids : ['security'],
-    date_created : new Date(),
+    default: {
+        location : {
+            latitude: 10,
+            longitude: 10.5
+        },
+        members : ['bob', 'alice', 'mallory', 'linux'],
+        owner_id : ['alice'],
+        title : 'Security Meetup',
+        description : 'We\'ll do security!',
+        start_time : new Date(),
+        end_time : new Date(),
+        topic_ids : ['security'],
+        date_created : new Date(),
+    }
 }
 
 export const mockUsers = {
     bob: {
-        notification_token: 'bob_t'
+        notification_token: 'bob_t',
+        name: 'BOB THE BUILDER'
     },
     alice: {
         notification_token: 'alice_t'
@@ -213,24 +215,32 @@ export const mockUsers = {
 
 export const firestoreMock = {
     collection: (id: string) => {
-        if (id === 'activities') { // Will return the testActivity above
-            return docGenerator(mockActivity, 'all')
-        } else if (id === 'users') { // Will index into individual users based on 'mockUsers'
-            return docGenerator(mockUsers, 'id')
+        if (id === 'activities') {
+            return collectionGenerator(mockActivity)
+        } else if (id === 'users') {
+            return collectionGenerator(mockUsers)
         } else {
             return null
         }
     }
 }
 
-function docGenerator(data: {[id: string]: Object}, mode: 'all' | 'id') {
+function collectionGenerator(data: {[id: string]: Object}) {
     return {
         doc: (id: string) => ({
-            get: () => Promise.resolve({
-                exists: mode === 'all' ? true : data[id] != null,
-                data: () => mode === 'all' ? data : data[id]
+            get: () => {
+                const exists = !!data[id]
+                const res = exists ? data[id] : data['default']
+                return Promise.resolve({
+                    exists,
+                    data: () => res
+                })
+            },
+            collection: (i: string) => ({
+                add: (d: any) => Promise.resolve(d)
             })
-        })
+        }),
+        add: (d: any) => Promise.resolve(d)
     }
 }
 
