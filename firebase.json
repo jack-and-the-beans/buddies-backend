@@ -15,8 +15,8 @@
       "**/__/**"
     ],
     "predeploy": [
-      "sh build",
-      "cp -r web-dev/static web-output"
+      "sh build --mode=production",
+      "cp -r web-dev/static web-output/static"
     ],
     "rewrites": [
       {

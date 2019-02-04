@@ -1,9 +1,9 @@
 import * as React from 'react';
-import * as  firebase from 'firebase';
 import * as firebaseui from 'firebaseui';
+import { auth, firestore } from './firebaseConfig'
 import { once } from 'lodash';
 
-const uiInstance = once(() => new firebaseui.auth.AuthUI(firebase.auth()));
+const uiInstance = once(() => new firebaseui.auth.AuthUI(auth()))
 
 export class Authorizer extends React.Component<{}> {
     private container: HTMLElement | null = null;
@@ -16,7 +16,7 @@ export class Authorizer extends React.Component<{}> {
         if (!this.container)
             return;
 
-        firebase.auth().setPersistence("local");
+        auth().setPersistence("local");
         uiInstance().start(this.container, {
             callbacks: {
                 signInSuccessWithAuthResult: function (authResult) {
@@ -33,7 +33,7 @@ export class Authorizer extends React.Component<{}> {
                             blocked_activities: [],
                         };
 
-                        firebase.firestore()
+                        firestore()
                             .collection("users")
                             .doc(authResult.user.uid)
                             .set(userData);
@@ -44,10 +44,10 @@ export class Authorizer extends React.Component<{}> {
             },
             signInOptions: [
                 {
-                    provider: firebase.auth.FacebookAuthProvider.PROVIDER_ID,
+                    provider: auth.FacebookAuthProvider.PROVIDER_ID,
                     scopes: ['email'],
                 },
-                firebase.auth.EmailAuthProvider.PROVIDER_ID,
+                auth.EmailAuthProvider.PROVIDER_ID,
             ]
           });
     }
@@ -71,5 +71,5 @@ export class Authorizer extends React.Component<{}> {
 }
 
 export function signOut() {
-    firebase.auth().signOut();
+    auth().signOut();
 }

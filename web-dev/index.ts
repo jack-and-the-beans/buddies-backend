@@ -1,10 +1,7 @@
 import { store, SetUserData, SetTopics, SetIsAuthorized } from './Store';
-import * as firebase from 'firebase';
-import * as App from './App'; 
+import { auth, firestore } from './firebaseConfig'
+import * as App from './App';
 import './style.scss';
-
-// Export firebase to the window for easier init
-window["firebase"] = firebase;
 
 function loadCollection(ref: firebase.firestore.CollectionReference, callback: (data?: any[]) => void) {
     const useCallback = (snapshot: firebase.firestore.QuerySnapshot) => 
@@ -25,7 +22,7 @@ function loadDoc(ref: firebase.firestore.DocumentReference, callback: (data?: an
 }
 
 function watchValuesForRedux(): () => void {
-    var currentUser = firebase.auth().currentUser;
+    var currentUser = auth().currentUser;
     
     if (!currentUser) {
         store.dispatch(SetIsAuthorized({ isAuthorized: false }));
@@ -34,11 +31,9 @@ function watchValuesForRedux(): () => void {
     
     store.dispatch(SetIsAuthorized({ isAuthorized: true }));
 
-    var db = firebase.firestore();
-
     var cancelCallbacks = [
         loadDoc(
-            db.collection("users").doc(currentUser.uid),
+            firestore().collection("users").doc(currentUser.uid),
             (user?: User) => {
                 if (user) {
                     store.dispatch(SetUserData({
@@ -48,7 +43,7 @@ function watchValuesForRedux(): () => void {
             }
         ),
         loadCollection(
-            db.collection("topics"),
+            firestore().collection("topics"),
             (topics? : Topic[]) => {
                 if (topics) {
                     store.dispatch(SetTopics({ topics }));
@@ -71,7 +66,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     var cancelLast: (() => void)| null = null;
 
-    firebase.auth().onAuthStateChanged(function() {
+    auth().onAuthStateChanged(function() {
         if (cancelLast)
             cancelLast();
         

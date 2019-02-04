@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "sourceMap": true,
+    "sourceMap": false,
     "jsx": "react",
     "strictNullChecks": true,
     "target": "es3",

@@ -3,10 +3,10 @@ import * as ReactDOM from 'react-dom';
 import { store, State, LoadingInfo } from './Store';
 import { Provider, connect } from 'react-redux';
 import * as _ from 'lodash';
-import * as firebase from 'firebase';
 import * as AuthHandler from './AuthHandler';
 import { EditTopics, EditTopics__Loading } from './EditTopics';
 import * as TopicService from './TopicService';
+import { auth } from './firebaseConfig'
 
 type AppProps = {
     isAuthorized: boolean
@@ -64,7 +64,7 @@ class AppContent extends React.Component<AppProps, {mode: ContentMode}> {
             return (
                 <div className="card">
                     <div>Sorry, it doesn't look like you're an admin :(</div>
-                    <div>UID: {firebase.auth().currentUser!.uid}</div>
+                    <div>UID: {auth().currentUser!.uid}</div>
                 </div>
             );
 
