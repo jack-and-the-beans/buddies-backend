@@ -104,24 +104,26 @@ export async function onActivityUsersChanged(change: Change<FirebaseFirestore.Do
         if (! changedUser) return -1
 
         // @ts-ignore because it doesn't like the mock
-        const changedUserInfo = await Refs(database).user(changedUser) as User
-
-        // Setup message based on whether they left or joined:
-        const msgBody = `${changedUserInfo.name} has ${usersBefore > usersAfter ? 'left' : 'joined'} your activity.`
-        
-        return sendChatMessage(activityId, msgBody, changedUser)
+        const userInfo = await Refs(database).user(changedUser).get()
+        if (userInfo.exists) {
+            const changedUserInfo = userInfo.data()
+            // Setup message based on whether they left or joined:
+            const msgBody = `${changedUserInfo.name} has ${usersBefore > usersAfter ? 'left' : 'joined'} your activity.`
+            
+            return exports.sendChatMessage(activityId, msgBody, changedUser, new Date())
+        }
     }
     return 0
 }
 
 // Sends a user left/joined message to the specified activity
-async function sendChatMessage(activityId: string, message: string, sender: string) {
+export function sendChatMessage(activityId: string, message: string, sender: string, date: Date) {
     // @ts-ignore because it doesn't like the database mock:
     const chatRef = Refs(database).chat(activityId)
-    await chatRef.add({
+    return chatRef.add({
         message,
         sender,
-        date_sent: new Date(),
+        date_sent: date,
         type: 'user_join_or_leave'
     })
 }
