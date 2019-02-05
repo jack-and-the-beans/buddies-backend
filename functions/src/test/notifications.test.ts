@@ -311,22 +311,22 @@ describe('Notifications', () => {
             assert(msgSpy.notCalled)
         })
 
-        it('Does nothing if the changed user does not exist', async() => {
+        it('Does nothing if the joined user does not exist', async() => {
             const msgSpy = sinon.spy(notifications, 'sendChatMessage')
             const change = {
                 after: {
                     id: 'after',
-                    data: () => null
-                },
-                before: {
-                    id: 'before',
                     data: () => ({
                         members: ['xyz']
                     })
+                },
+                before: {
+                    id: 'before',
+                    data: () => null
                 }
             }
             // @ts-ignore
-            const res = await notifications.onActivityUsersChanged(change, {})
+            const res = notifications.onActivityUsersChanged(change, {})
             assert(msgSpy.notCalled)
         })
 
@@ -372,7 +372,7 @@ describe('Notifications', () => {
             const words = message.split(' ')
             assert(words.indexOf('joined') !== -1)
         })
-        it('References the changed user in the message', async () => {
+        it('References the user in the message if they join', async () => {
             const msgSpy = sinon.spy(notifications, 'sendChatMessage')
             const change = {
                 after: {
@@ -392,6 +392,27 @@ describe('Notifications', () => {
             const words = message.split(' ')
 
             assert(words.indexOf('BOB') !== -1)
+        })
+        it('Does not reference the user in the message if they leave', async () => {
+            const msgSpy = sinon.spy(notifications, 'sendChatMessage')
+            const change = {
+                after: {
+                    id: 'after',
+                    data: () => ({ members: ['1'] })
+                },
+                before: {
+                    id: 'before',
+                    data: () => ({
+                        members: ['1', 'bob']
+                    })
+                }
+            }
+            // @ts-ignore
+            const res = await notifications.onActivityUsersChanged(change, {})
+            const message = msgSpy.args[0][1]
+            const words = message.split(' ')
+
+            assert(words.indexOf('BOB') === -1)
         })
     })
 
@@ -432,36 +453,36 @@ describe('Notifications', () => {
         })
     })
 
-    describe('Get Different String', () => {
-        it('Returns null if the arrays are the same length', () => {
+    describe('Get users who joined or left an activity', () => {
+        it('Returns a tuple of empty arrays', () => {
             const test1 = ['hi']
             const test2 = ['hi']
-            assert.equal(notifications.getDifferentString(test1, test2), null)
+            assert.deepEqual(notifications.getUserDiff(test1, test2), [[],[]])
         })
-        it('Returns the first different string in before if before is longer', () => {
+        it('Returns the users who joined', () => {
             const before = ['hi', 'de', 'no']
             const after = ['hi', 'no']
-            const res = notifications.getDifferentString(before, after)
-            assert.equal(res, 'de')
+            const res = notifications.getUserDiff(before, after)
+            assert.deepEqual(res, [[], ['de']])
         })
-        it('Returns the first different string in after if after is longer', () => {
+        it('Returns the users who left', () => {
             const before = ['hi', 'de', 'no']
             const after = ['hi', 'de', 'ab', 'no']
-            const res = notifications.getDifferentString(before, after)
-            assert.equal(res, 'ab')
+            const res = notifications.getUserDiff(before, after)
+            assert.deepEqual(res, [['ab'], []])
         })
-        it('Returns the last index of before if it goes through the rest of the array', () => {
-            const before = ['hi', 'de', 'no']
-            const after = ['hi', 'de']
-            const res = notifications.getDifferentString(before, after)
-            assert.equal(res, 'no')
+        it('Returns both joined AND left users', () => {
+            const before = ['hi', 'de', 'no', 'gah', 'axe body spray']
+            const after = ['hi', 'de', 'ab', 'no']
+            const res = notifications.getUserDiff(before, after)
+            assert.deepEqual(res, [['ab'], ['gah', 'axe body spray']])
 
         })
-        it('Returns the last index of after if it goes through the rest of the array', () => {
-            const before = ['hi', 'de']
-            const after = ['hi', 'de', 'go']
-            const res = notifications.getDifferentString(before, after)
-            assert.equal(res, 'go')
+        it('Works if one of the parameters is an empty array', () => {
+            const before = ['hi', 'de', 'no']
+            const after: string[] = []
+            const res = notifications.getUserDiff(before, after)
+            assert.deepEqual(res, [[], ['hi', 'de', 'no']])
         })
     })
 })
