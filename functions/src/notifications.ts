@@ -4,6 +4,7 @@ import * as constants from './constants'
 import * as algoliasearch from 'algoliasearch'
 import { algoliaMock, messagingMock, firestoreMock } from './test/mocks'
 import Refs from './firestoreRefs'
+import * as _ from 'lodash'
 
 try { admin.initializeApp() } catch (e) {}
 
@@ -98,22 +99,23 @@ export async function onActivityUsersChanged(change: Change<FirebaseFirestore.Do
     const usersBefore = getUsersFromChange(change.before)
     const usersAfter = getUsersFromChange(change.after)
 
-    if (usersBefore.length !== usersAfter.length) {
-        // Gets which user joined or left the activity. changedUser will be that person's UID.
-        const changedUser = getDifferentString(usersBefore, usersAfter)
-        if (! changedUser) return -1
+    const [joined, left] = getUserDiff(usersBefore, usersAfter)
 
-        // @ts-ignore because it doesn't like the mock
-        const userInfo = await Refs(database).user(changedUser).get()
-        if (userInfo.exists) {
-            const changedUserInfo = userInfo.data()
-            // Setup message based on whether they left or joined:
-            const msgBody = `${changedUserInfo.name} has ${usersBefore > usersAfter ? 'left' : 'joined'} your activity.`
-            
-            return exports.sendChatMessage(activityId, msgBody, changedUser, new Date())
-        }
-    }
-    return 0
+    const joinedTasks = joined.map(async (uid) => {
+        // @ts-ignore
+        const userInfo = await Refs(database).user(uid).get()
+        const userData = userInfo.data()
+
+        const msgBody = `${userData.name} has joined your activity.`
+        await sendChatMessage(activityId, msgBody, uid, new Date())
+    })
+
+    const leftTasks = left.map(async (uid) => {
+        const msgBody = 'A user has left your activity.'
+        await sendChatMessage(activityId, msgBody, uid, new Date())
+    })
+
+    return Promise.all([...joinedTasks, ...leftTasks])
 }
 
 // Sends a user left/joined message to the specified activity
@@ -135,30 +137,12 @@ export function getUsersFromChange(doc: FirebaseFirestore.DocumentSnapshot): str
     return arr1
 }
 
-// Returns the first string which is different in the array.
-// Returns null if the arrays are the same length.
-export function getDifferentString(before: string[], after: string[]): string | null {
-    // Get the strings in the same order:
-    before.sort()
-    after.sort()
-    // Someone has been removed:
-    if (before.length > after.length) {
-        for (let i = 0; i < after.length; i++) {
-            if (before[i] !== after[i]) {
-                return before[i]
-            }
-        }
-        return before[before.length - 1]
-    } else if (after.length > before.length) {
-        // Someone has been added:
-        for (let i = 0; i < before.length; i++) {
-            if (before[i] !== after[i]) {
-                return after[i]
-            }
-        }
-        return after[after.length - 1]
-    }
-    return null
+// Returns an a tuple where each element is an array of strings:
+// [ usersWhoJoined, usersWhoLeft ]
+export function getUserDiff(before: string[], after: string[]): [string[], string[]] {
+    const usersWhoJoined = _.difference(after, before) // People in after, but not in before
+    const usersWhoLeft = _.difference(before, after) // People in before but not in after
+    return [ usersWhoJoined, usersWhoLeft ]
 }
 
 export async function newMessageHandler(snap: FirebaseFirestore.DocumentSnapshot, context: EventContext) {
