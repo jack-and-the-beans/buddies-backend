@@ -100,19 +100,21 @@ export async function onActivityUsersChanged(change: Change<FirebaseFirestore.Do
     const usersAfter = getUsersFromChange(change.after)
 
     const [joined, left] = getUserDiff(usersBefore, usersAfter)
-
+    console.log(left)
     const joinedTasks = joined.map(async (uid) => {
         // @ts-ignore
         const userInfo = await Refs(database).user(uid).get()
-        const userData = userInfo.data()
+        if (userInfo.exists) {
+            const userData = userInfo.data()
 
-        const msgBody = `${userData.name} has joined your activity.`
-        await sendChatMessage(activityId, msgBody, uid, new Date())
+            const msgBody = `${userData.name} has joined your activity.`
+            await exports.sendChatMessage(activityId, msgBody, uid, new Date())    
+        }
     })
 
     const leftTasks = left.map(async (uid) => {
         const msgBody = 'A user has left your activity.'
-        await sendChatMessage(activityId, msgBody, uid, new Date())
+        await exports.sendChatMessage(activityId, msgBody, uid, new Date())
     })
 
     return Promise.all([...joinedTasks, ...leftTasks])
@@ -120,6 +122,7 @@ export async function onActivityUsersChanged(change: Change<FirebaseFirestore.Do
 
 // Sends a user left/joined message to the specified activity
 export function sendChatMessage(activityId: string, message: string, sender: string, date: Date) {
+    console.log('sending from ', sender)
     // @ts-ignore because it doesn't like the database mock:
     const chatRef = Refs(database).chat(activityId)
     return chatRef.add({
