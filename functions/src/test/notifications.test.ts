@@ -265,4 +265,224 @@ describe('Notifications', () => {
             assert.equal(res.token, test_token)
         })
     })
+
+    describe('Activity users changed handler', () => {
+        afterEach(() => {
+            // @ts-ignore because it doesn't like the spy type:
+            notifications.sendChatMessage.restore()
+        })
+
+        it('Does nothing if there are the same users', async () => {
+            const msgSpy = sinon.spy(notifications, 'sendChatMessage')
+            const change = {
+                after: {
+                    id: 'after',
+                    data: () => ({
+                        members: ['alice', 'bob']
+                    })
+                },
+                before: {
+                    id: 'before',
+                    data: () => ({
+                        members: ['alice', 'bob']
+                    })
+                }
+            }
+            // @ts-ignore
+            const res = await notifications.onActivityUsersChanged(change, {})
+            assert(msgSpy.notCalled)
+        })
+        it('Does nothing if there are no users', async () => {
+            const msgSpy = sinon.spy(notifications, 'sendChatMessage')
+            const change = {
+                after: {
+                    id: 'after',
+                    data: () => null
+                },
+                before: {
+                    id: 'before',
+                    data: () => ({
+                        members: []
+                    })
+                }
+            }
+            // @ts-ignore
+            const res = await notifications.onActivityUsersChanged(change, {})
+            assert(msgSpy.notCalled)
+        })
+
+        it('Does nothing if the joined user does not exist', async() => {
+            const msgSpy = sinon.spy(notifications, 'sendChatMessage')
+            const change = {
+                after: {
+                    id: 'after',
+                    data: () => ({
+                        members: ['xyz']
+                    })
+                },
+                before: {
+                    id: 'before',
+                    data: () => null
+                }
+            }
+            // @ts-ignore
+            const res = notifications.onActivityUsersChanged(change, {})
+            assert(msgSpy.notCalled)
+        })
+
+        it('Send a chat message about leaving if a user has left', async () => {
+            const msgSpy = sinon.spy(notifications, 'sendChatMessage')
+            const change = {
+                after: {
+                    id: 'after',
+                    data: () => ({
+                        members: ['1']
+                    })
+                },
+                before: {
+                    id: 'before',
+                    data: () => ({
+                        members: ['1', 'bob']
+                    })
+                }
+            }
+            // @ts-ignore
+            const res = await notifications.onActivityUsersChanged(change, {})
+            const message = msgSpy.args[0][1]
+            const words = message.split(' ')
+            assert(words.indexOf('left') !== -1)
+        })
+        it('Sends a chat message about joining if a user has joined', async () => {
+            const msgSpy = sinon.spy(notifications, 'sendChatMessage')
+            const change = {
+                after: {
+                    id: 'after',
+                    data: () => ({ members: ['1', 'bob'] })
+                },
+                before: {
+                    id: 'before',
+                    data: () => ({
+                        members: ['1']
+                    })
+                }
+            }
+            // @ts-ignore
+            const res = await notifications.onActivityUsersChanged(change, {})
+            const message = msgSpy.args[0][1]
+            const words = message.split(' ')
+            assert(words.indexOf('joined') !== -1)
+        })
+        it('References the user in the message if they join', async () => {
+            const msgSpy = sinon.spy(notifications, 'sendChatMessage')
+            const change = {
+                after: {
+                    id: 'after',
+                    data: () => ({ members: ['1', 'bob'] })
+                },
+                before: {
+                    id: 'before',
+                    data: () => ({
+                        members: ['1']
+                    })
+                }
+            }
+            // @ts-ignore
+            const res = await notifications.onActivityUsersChanged(change, {})
+            const message = msgSpy.args[0][1]
+            const words = message.split(' ')
+
+            assert(words.indexOf('BOB') !== -1)
+        })
+        it('Does not reference the user in the message if they leave', async () => {
+            const msgSpy = sinon.spy(notifications, 'sendChatMessage')
+            const change = {
+                after: {
+                    id: 'after',
+                    data: () => ({ members: ['1'] })
+                },
+                before: {
+                    id: 'before',
+                    data: () => ({
+                        members: ['1', 'bob']
+                    })
+                }
+            }
+            // @ts-ignore
+            const res = await notifications.onActivityUsersChanged(change, {})
+            const message = msgSpy.args[0][1]
+            const words = message.split(' ')
+
+            assert(words.indexOf('BOB') === -1)
+        })
+    })
+
+    describe('Send Chat Message', () => {
+        it('Adds the given data with the right shape to the chat ref', async () => {
+            const activityId = 'chat_msg'
+            const message = 'Howdy folks'
+            const sender = 'Your Mom'
+            const date = new Date()
+            const res = await notifications.sendChatMessage(activityId, message, sender, date)
+            assert.deepEqual(res, {
+                message,
+                sender,
+                date_sent: date,
+                type: 'user_join_or_leave'
+            })
+        })
+    })
+
+    describe('Get users from change', () => {
+        it('Returns an empty array if the data is in the wrong format', () => {
+            const doc = {data: () => ({ members: 'what' })}
+            // @ts-ignore
+            const res = notifications.getUsersFromChange(doc)
+            assert.deepEqual(res, [])
+        })
+        it('Returns an empty array if there is no data', () => {
+            const doc = {data: () => null}
+            // @ts-ignore
+            const res = notifications.getUsersFromChange(doc)
+            assert.deepEqual(res, [])
+        })
+        it('Returns the array if it exists', () => {
+            const doc = {data: () => ({ members: ['foo', 'bar'] })}
+            // @ts-ignore
+            const res = notifications.getUsersFromChange(doc)
+            assert.deepEqual(res, ['foo', 'bar'])
+        })
+    })
+
+    describe('Get users who joined or left an activity', () => {
+        it('Returns a tuple of empty arrays', () => {
+            const test1 = ['hi']
+            const test2 = ['hi']
+            assert.deepEqual(notifications.getUserDiff(test1, test2), [[],[]])
+        })
+        it('Returns the users who joined', () => {
+            const before = ['hi', 'de', 'no']
+            const after = ['hi', 'no']
+            const res = notifications.getUserDiff(before, after)
+            assert.deepEqual(res, [[], ['de']])
+        })
+        it('Returns the users who left', () => {
+            const before = ['hi', 'de', 'no']
+            const after = ['hi', 'de', 'ab', 'no']
+            const res = notifications.getUserDiff(before, after)
+            assert.deepEqual(res, [['ab'], []])
+        })
+        it('Returns both joined AND left users', () => {
+            const before = ['hi', 'de', 'no', 'gah', 'axe body spray']
+            const after = ['hi', 'de', 'ab', 'no']
+            const res = notifications.getUserDiff(before, after)
+            assert.deepEqual(res, [['ab'], ['gah', 'axe body spray']])
+
+        })
+        it('Works if one of the parameters is an empty array', () => {
+            const before = ['hi', 'de', 'no']
+            const after: string[] = []
+            const res = notifications.getUserDiff(before, after)
+            assert.deepEqual(res, [[], ['hi', 'de', 'no']])
+        })
+    })
 })

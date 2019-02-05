@@ -1,9 +1,10 @@
-import { EventContext } from 'firebase-functions'
+import { EventContext, Change } from 'firebase-functions'
 import * as admin from 'firebase-admin'
 import * as constants from './constants'
 import * as algoliasearch from 'algoliasearch'
 import { algoliaMock, messagingMock, firestoreMock } from './test/mocks'
 import Refs from './firestoreRefs'
+import * as _ from 'lodash'
 
 try { admin.initializeApp() } catch (e) {}
 
@@ -90,6 +91,60 @@ export function createActivityNotification(token: string, activity_id: string): 
         },
         data: { activity_id },
     }
+}
+
+// Sends a message to a chat if a user leaves or joins it:
+export async function onActivityUsersChanged(change: Change<FirebaseFirestore.DocumentSnapshot>, context: EventContext) {
+    const activityId: string = change.after.id
+    const usersBefore = getUsersFromChange(change.before)
+    const usersAfter = getUsersFromChange(change.after)
+
+    const [joined, left] = getUserDiff(usersBefore, usersAfter)
+
+    const joinedTasks = joined.map(async (uid) => {
+        // @ts-ignore
+        const userInfo = await Refs(database).user(uid).get()
+        if (userInfo.exists) {
+            const userData = userInfo.data()
+
+            const msgBody = `${userData.name} has joined your activity.`
+            await exports.sendChatMessage(activityId, msgBody, uid, new Date())    
+        }
+    })
+
+    const leftTasks = left.map(async (uid) => {
+        const msgBody = 'A user has left your activity.'
+        await exports.sendChatMessage(activityId, msgBody, uid, new Date())
+    })
+
+    return Promise.all([...joinedTasks, ...leftTasks])
+}
+
+// Sends a user left/joined message to the specified activity
+export function sendChatMessage(activityId: string, message: string, sender: string, date: Date) {
+    // @ts-ignore because it doesn't like the database mock:
+    const chatRef = Refs(database).chat(activityId)
+    return chatRef.add({
+        message,
+        sender,
+        date_sent: date,
+        type: 'user_join_or_leave'
+    })
+}
+
+// Gets the the array of activity members from the activity doc.
+export function getUsersFromChange(doc: FirebaseFirestore.DocumentSnapshot): string[] {
+    const data1 = doc.data()
+    const arr1: string[] = (data1 && data1.members && Array.isArray(data1.members)) ? data1.members : []
+    return arr1
+}
+
+// Returns an a tuple where each element is an array of strings:
+// [ usersWhoJoined, usersWhoLeft ]
+export function getUserDiff(before: string[], after: string[]): [string[], string[]] {
+    const usersWhoJoined = _.difference(after, before) // People in after, but not in before
+    const usersWhoLeft = _.difference(before, after) // People in before but not in after
+    return [ usersWhoJoined, usersWhoLeft ]
 }
 
 export async function newMessageHandler(snap: FirebaseFirestore.DocumentSnapshot, context: EventContext) {
