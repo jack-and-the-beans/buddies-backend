@@ -16,3 +16,6 @@ export const onMessageCreation = functions.firestore.document('activities/{activ
 import * as algoliaSync from './algoliaSync'
 export const sendActivityDataToAlgolia = functions.firestore.document('activities/{activity_id}').onWrite(algoliaSync.activityDataHandler)
 export const sendUserDataToAlgolia = functions.firestore.document('users/{user_id}').onWrite(algoliaSync.userDataHandler)
+
+import * as userManagement from './userManagement'
+export const onUserDelete = functions.auth.user().onDelete(userManagement.onUserDelete)
