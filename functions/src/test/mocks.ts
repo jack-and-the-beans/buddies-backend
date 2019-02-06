@@ -213,6 +213,14 @@ export const mockUsers = {
     }
 }
 
+export const storageBucketMock = {
+    file: (path: String) => ({
+         // We can pass 'not_exist' as the UID to test if a file exists:
+        exists: () => Promise.resolve(path.split('/').indexOf('not_exists') === -1),
+        delete: () => { exports.spyOnMe2(); Promise.resolve(true) }
+    })
+}
+
 export const firestoreMock = {
     collection: (id: string) => {
         if (id === 'activities') {
@@ -224,6 +232,10 @@ export const firestoreMock = {
         }
     }
 }
+
+// These are just for spying:
+export const spyOnMe1 = () => 1
+export const spyOnMe2 = () => 2
 
 function collectionGenerator(data: {[id: string]: Object}) {
     return {
@@ -238,7 +250,8 @@ function collectionGenerator(data: {[id: string]: Object}) {
             },
             collection: (i: string) => ({
                 add: (d: any) => Promise.resolve(d)
-            })
+            }),
+            delete: () => { exports.spyOnMe1(); Promise.resolve(true) }
         }),
         add: (d: any) => Promise.resolve(d)
     }
