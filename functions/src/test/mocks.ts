@@ -194,10 +194,10 @@ export const mockActivity = {
 export const mockUsers = {
     bob: {
         notification_token: 'bob_t',
-        name: 'BOB THE BUILDER'
+        name: 'BOB THE BUILDER',
     },
     alice: {
-        notification_token: 'alice_t'
+        notification_token: 'alice_t',
     },
     mallory: {
         notification_token: 'mallory_t'
@@ -210,6 +210,14 @@ export const mockUsers = {
     },
     ste5en: {
         notification_token: 10
+    },
+    guy: {
+        should_send_joined_activity_notification: false,
+        notification_token: 'guy_t',
+    },
+    guy2: {
+        should_send_joined_activity_notification: true,
+        notification_token: 'guy_2',
     }
 }
 
