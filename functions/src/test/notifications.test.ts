@@ -231,6 +231,30 @@ describe('Notifications', () => {
             const res = await notifications.getTokensForChatNotification(userIds, senderId, db)
             assert.deepEqual(res, ['bob_t', 'alice_t'])
         })
+        it('Excludes users who have turned off activity detail notifications', async () => {
+            const userIds = ['alice', 'guy', 'bob'] // Guy has turned off notifications
+            const senderId = 'alice'
+            const db = mocks.firestoreMock
+            // @ts-ignore because our mock is fine
+            const res = await notifications.getTokensForChatNotification(userIds, senderId, db)
+            assert.deepEqual(res, ['bob_t'])
+        })
+        it('Includes users who do not have a notification preference set', async () => {
+            const userIds = ['alice', 'bob'] // Bob does not have a preference defined
+            const senderId = 'alice'
+            const db = mocks.firestoreMock
+            // @ts-ignore because our mock is fine
+            const res = await notifications.getTokensForChatNotification(userIds, senderId, db)
+            assert.deepEqual(res, ['bob_t'])
+        })
+        it('Includes users who have agreed to activity detail notifications', async () => {
+            const userIds = ['alice', 'guy2',] // Guy2 has allowed notifications
+            const senderId = 'alice'
+            const db = mocks.firestoreMock
+            // @ts-ignore because our mock is fine
+            const res = await notifications.getTokensForChatNotification(userIds, senderId, db)
+            assert.deepEqual(res, ['guy_2'])
+        })
     })
     
     describe('Chat notification factory', () => {
