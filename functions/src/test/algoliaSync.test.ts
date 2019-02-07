@@ -16,13 +16,13 @@ describe('Function Handlers', () => {
   it('Calls algolia sync on changes to activity data', async () => {
     const spy = sinon.spy(algolia, 'algoliaSync')
     // @ts-ignore
-    algolia.activityDataHandler(mocks.syncTest.equalChange, {})
+    await algolia.activityDataHandler(mocks.syncTest.equalChange, {})
     assert(spy.calledOnce)
   })
   it('Calls algolia sync on changes to user data', async () => {
     const spy = sinon.spy(algolia, 'algoliaSync')
     // @ts-ignore
-    algolia.userDataHandler(mocks.syncTest.equalChange, {})
+    await algolia.userDataHandler(mocks.syncTest.equalChange, {})
     assert(spy.calledOnce)
   })
 })
