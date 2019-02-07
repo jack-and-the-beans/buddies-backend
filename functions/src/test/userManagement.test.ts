@@ -3,7 +3,9 @@ import * as sinon from 'sinon'
 import * as mocks from './mocks'
 import 'mocha'
 
-import * as userManagement from '../userManagement'
+import UserManagement from '../userManagement'
+// @ts-ignore
+const userManagement = new UserManagement(mocks.firestoreMock, mocks.storageBucketMock)
 
 describe('User Management', () => {
   describe('On user delete', () => {

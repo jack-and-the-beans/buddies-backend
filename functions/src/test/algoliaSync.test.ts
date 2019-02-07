@@ -3,7 +3,9 @@ import * as sinon from 'sinon'
 import * as mocks from './mocks'
 import 'mocha'
 
-import * as algolia from '../algoliaSync'
+import AlgoliaSync from '../algoliaSync'
+// @ts-ignore
+const algolia = new AlgoliaSync(mocks.algoliaMock())
 
 describe('Function Handlers', () => {
   afterEach(() => {
