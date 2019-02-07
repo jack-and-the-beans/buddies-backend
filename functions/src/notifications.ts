@@ -177,10 +177,13 @@ export async function getTokensForChatNotification(userIds: string[], senderId: 
     // Get the notification token for each user if the user exists and if the token
     // is a string that is not empty.
     const tokens = userDocs.reduce((val: string[], doc: FirebaseFirestore.DocumentSnapshot) => {
-        if (doc.exists) {
-            const data = doc.data()
-            const token = data && data.notification_token ? data.notification_token : null
-            if (token && typeof token === 'string' && token.length > 0) {
+        const data = doc.data()
+        if (doc.exists && data) {
+            const token = data.notification_token ? data.notification_token : null
+            // If users notification preference is defined, use it. Otherwise, default the preference to true.
+            const notificationPref = data.should_send_joined_activity_notification != null ? data.should_send_joined_activity_notification : true
+            if (token && typeof token === 'string' && token.length > 0 && notificationPref) {
+                // Only add the token if the user has a valid token, and if the user is ok with receiving notifications.
                 val.push(token)
             }
         }
