@@ -3,7 +3,9 @@ import * as sinon from 'sinon'
 import * as mocks from './mocks'
 import 'mocha'
 
-import * as notifications from '../notifications'
+import Notifications from '../notifications'
+// @ts-ignore
+const notifications = new Notifications(mocks.firestoreMock, mocks.algoliaMock(), mocks.messagingMock)
 
 // NOTE: The `@ts-ignore` statements in this file are because much of the data
 // does not fit the shape of the expected data. This is what we want, because
