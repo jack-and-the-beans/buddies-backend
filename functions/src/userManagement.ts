@@ -19,7 +19,6 @@ export async function onUserDelete (user: admin.auth.UserRecord, context: functi
   await databaseRef.delete()
   const exists = await pictureRef.exists()
   if (exists) {
-    console.log('RIGHT HERE')
     await pictureRef.delete()
   }
 }
