@@ -10,13 +10,7 @@ interface Bucket {
 }
 
 export default class UserManagement {
-  database: FirebaseFirestore.Firestore
-  storageBucket: Bucket
-
-  constructor(database: FirebaseFirestore.Firestore, bucket: Bucket) {
-      this.database = database
-      this.storageBucket = bucket
-  }
+  constructor(public database: FirebaseFirestore.Firestore, public storageBucket: Bucket) {}
 
   async onUserDelete (user: admin.auth.UserRecord, context: functions.EventContext) {
     const uid = user.uid
