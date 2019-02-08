@@ -3,10 +3,7 @@ import * as algoliasearch from 'algoliasearch'
 import * as constants from './constants'
 
 export default class AlgoliaSync {
-  client: algoliasearch.Client
-  constructor(algoliaClient: algoliasearch.Client) {
-      this.client = algoliaClient
-  }
+  constructor(public client: algoliasearch.Client) { }
 
   activityDataHandler (change: functions.Change<FirebaseFirestore.DocumentSnapshot>, context: functions.EventContext) {
     return this.algoliaSync<AlgoliaActivity>(this.client.initIndex(constants.ACTIVITY_INDEX_NAME), change, this.getAlgoliaActivityData, this.hasActivityChanged)

@@ -13,14 +13,7 @@ type ActivityData = {
 }
 
 export default class Notifications {
-    database: FirebaseFirestore.Firestore
-    algoliaClient: algoliasearch.Client
-    messaging: admin.messaging.Messaging
-    constructor(database: FirebaseFirestore.Firestore, algoliaClient: algoliasearch.Client , messaging: admin.messaging.Messaging) {
-        this.database = database
-        this.algoliaClient = algoliaClient
-        this.messaging = messaging
-    }
+    constructor(public database: FirebaseFirestore.Firestore, public algoliaClient: algoliasearch.Client , public messaging: admin.messaging.Messaging) { }
 
     async activityCreationHandler(snap: FirebaseFirestore.DocumentSnapshot, context: EventContext) {
         const newData = this.getActivityData(snap)
