@@ -15,14 +15,14 @@ type ActivityData = {
 export default class Notifications {
     constructor(public database: FirebaseFirestore.Firestore, public algoliaClient: algoliasearch.Client , public messaging: admin.messaging.Messaging) { }
 
-    async activityCreationHandler(snap: FirebaseFirestore.DocumentSnapshot, context: EventContext) {
+    activityCreationHandler = async (snap: FirebaseFirestore.DocumentSnapshot, context: EventContext) => {
         const newData = this.getActivityData(snap)
         if (!newData) return -1
     
         return this.sendUsersActivityNotification(newData, this.algoliaClient.initIndex(constants.USER_INDEX_NAME), this.messaging)
     }
     
-    async sendUsersActivityNotification(activityData: ActivityData, index: algoliasearch.Index, messageService: admin.messaging.Messaging) {
+    sendUsersActivityNotification = async (activityData: ActivityData, index: algoliasearch.Index, messageService: admin.messaging.Messaging) => {
         const { activityId, ownerId, topicIds, coords } = activityData
     
         // Search for users nearby the activity and who have 
@@ -43,7 +43,7 @@ export default class Notifications {
     // Only use users who have not blocked the owner of the activity
     // (or who have not been blocked by the owner), and who have a notification token,
     // and who have their notification setting set to true
-    getUsersForNotification(users: AlgoliaUser[], ownerId: string): AlgoliaUser[] {
+    getUsersForNotification = (users: AlgoliaUser[], ownerId: string): AlgoliaUser[] => {
         return users.filter(usr => (
             usr.block_filter.indexOf(ownerId) === -1 &&
             usr.notification_token.length > 0 &&
@@ -53,11 +53,11 @@ export default class Notifications {
     
     // Filter by any favorite topic - the result must match at least one
     // Translates the topics array into a string for algolia filter
-    getTopicFilter(topics: string[]): string {
+    getTopicFilter = (topics: string[]): string => {
         return topics.map(id => `favorite_topics:${id}`).join(' OR ')
     }
     
-    getActivityData(snap: FirebaseFirestore.DocumentSnapshot): ActivityData | null {
+    getActivityData = (snap: FirebaseFirestore.DocumentSnapshot): ActivityData | null => {
         const newData = snap.data()
         if (!newData) {
             return null
@@ -77,7 +77,7 @@ export default class Notifications {
         }
     }
     
-    createActivityNotification(token: string, activity_id: string): admin.messaging.Message {
+    createActivityNotification = (token: string, activity_id: string): admin.messaging.Message => {
         return {
             token: token,
             notification: {
@@ -89,7 +89,7 @@ export default class Notifications {
     }
     
     // Sends a message to a chat if a user leaves or joins it:
-    async onActivityUsersChanged(change: Change<FirebaseFirestore.DocumentSnapshot>, context: EventContext) {
+    onActivityUsersChanged = async (change: Change<FirebaseFirestore.DocumentSnapshot>, context: EventContext) => {
         const activityId: string = change.after.id
         const usersBefore = this.getUsersFromChange(change.before)
         const usersAfter = this.getUsersFromChange(change.after)
@@ -114,7 +114,7 @@ export default class Notifications {
     }
     
     // Sends a user left/joined message to the specified activity
-    sendChatMessage(activityId: string, message: string, sender: string, date: Date) {
+    sendChatMessage = (activityId: string, message: string, sender: string, date: Date) => {
         const chatRef = Refs(this.database).chat(activityId)
         return chatRef.add({
             message,
@@ -125,7 +125,7 @@ export default class Notifications {
     }
     
     // Gets the the array of activity members from the activity doc.
-    getUsersFromChange(doc: FirebaseFirestore.DocumentSnapshot): string[] {
+    getUsersFromChange = (doc: FirebaseFirestore.DocumentSnapshot): string[] => {
         const data1 = doc.data()
         const arr1: string[] = (data1 && data1.members && Array.isArray(data1.members)) ? data1.members : []
         return arr1
@@ -133,13 +133,13 @@ export default class Notifications {
     
     // Returns an a tuple where each element is an array of strings:
     // [ usersWhoJoined, usersWhoLeft ]
-    getUserDiff(before: string[], after: string[]): [string[], string[]] {
+    getUserDiff = (before: string[], after: string[]): [string[], string[]] => {
         const usersWhoJoined = _.difference(after, before) // People in after, but not in before
         const usersWhoLeft = _.difference(before, after) // People in before but not in after
         return [ usersWhoJoined, usersWhoLeft ]
     }
     
-    async newMessageHandler(snap: FirebaseFirestore.DocumentSnapshot, context: EventContext) {
+    newMessageHandler = async (snap: FirebaseFirestore.DocumentSnapshot, context: EventContext) => {
         const activity_id = context.params.activity_id
         const activityDoc = await Refs(this.database).activity(activity_id).get()
         const activity = activityDoc.data() as Activity
@@ -154,7 +154,7 @@ export default class Notifications {
         }))
     }
     
-    async getTokensForChatNotification(userIds: string[], senderId: string, db: FirebaseFirestore.Firestore): Promise<string[]> {
+    getTokensForChatNotification = async (userIds: string[], senderId: string, db: FirebaseFirestore.Firestore): Promise<string[]> => {
         // Make sure they're unique
         const user_ids = [...new Set(userIds)]
         // Get the document for each user other than the owner:
@@ -183,7 +183,7 @@ export default class Notifications {
         return [...new Set(tokens)]
     }
     
-    createChatNotification(token: string, activity_id: string, title: string, message: string): admin.messaging.Message {
+    createChatNotification = (token: string, activity_id: string, title: string, message: string): admin.messaging.Message => {
         return {
             token,
             notification: { title, body: message },

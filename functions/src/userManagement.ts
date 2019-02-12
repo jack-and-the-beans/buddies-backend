@@ -12,7 +12,7 @@ interface Bucket {
 export default class UserManagement {
   constructor(public database: FirebaseFirestore.Firestore, public storageBucket: Bucket) {}
 
-  async onUserDelete (user: admin.auth.UserRecord, context: functions.EventContext) {
+  onUserDelete = async (user: admin.auth.UserRecord, context: functions.EventContext) => {
     const uid = user.uid
     const databaseRef = Refs(this.database).user(uid)
     const pictureRef = this.storageBucket.file(`users/${uid}/profilePicture.jpg`)
