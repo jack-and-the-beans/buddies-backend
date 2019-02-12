@@ -5,22 +5,22 @@ import * as constants from './constants'
 export default class AlgoliaSync {
   constructor(public client: algoliasearch.Client) { }
 
-  activityDataHandler (change: functions.Change<FirebaseFirestore.DocumentSnapshot>, context: functions.EventContext) {
+  activityDataHandler = (change: functions.Change<FirebaseFirestore.DocumentSnapshot>, context: functions.EventContext) => {
     return this.algoliaSync<AlgoliaActivity>(this.client.initIndex(constants.ACTIVITY_INDEX_NAME), change, this.getAlgoliaActivityData, this.hasActivityChanged)
   }
   
   // Triggered on create, update, and delete:
-  userDataHandler (change: functions.Change<FirebaseFirestore.DocumentSnapshot>, context: functions.EventContext) {
+  userDataHandler = (change: functions.Change<FirebaseFirestore.DocumentSnapshot>, context: functions.EventContext) => {
     return this.algoliaSync<AlgoliaUser>(this.client.initIndex(constants.USER_INDEX_NAME), change, this.getAlgoliaUserData, this.hasUserChanged)
   }
   
   // Creates, updates, or deletes objects in the given Algolia index based on the
   // data from the document change. Utilizes dataFunc and compareFunc respectively
   // to get database data from change and to compare entries of type T.
-  async algoliaSync<T extends AlgoliaBase>(algoliaIndex: algoliasearch.Index,
+  algoliaSync = async <T extends AlgoliaBase>(algoliaIndex: algoliasearch.Index,
                                 change: functions.Change<FirebaseFirestore.DocumentSnapshot>,
                                 dataFunc: (doc: FirebaseFirestore.DocumentSnapshot) => T | null,
-                                compareFunc: (a: T, b: T) => boolean): Promise<void> {
+                                compareFunc: (a: T, b: T) => boolean): Promise<void> => {
     const newData = dataFunc(change.after)
     const oldData = dataFunc(change.before);
     
@@ -40,7 +40,7 @@ export default class AlgoliaSync {
     }
   }
   
-  getAlgoliaUserData(doc: FirebaseFirestore.DocumentSnapshot): AlgoliaUser | null {
+  getAlgoliaUserData = (doc: FirebaseFirestore.DocumentSnapshot): AlgoliaUser | null => {
     const data = doc.data()
     if (!doc.exists || !data) {
       return null
@@ -60,7 +60,7 @@ export default class AlgoliaSync {
     }
   }
   
-  hasUserChanged(a: AlgoliaUser, b: AlgoliaUser): boolean {
+  hasUserChanged = (a: AlgoliaUser, b: AlgoliaUser): boolean => {
     if (a.should_send_activity_suggestion_notification !== b.should_send_activity_suggestion_notification ||
         a._geoloc.lng !== b._geoloc.lng ||
         a._geoloc.lat !== b._geoloc.lat ||
@@ -74,7 +74,7 @@ export default class AlgoliaSync {
   }
   
   // Gets the data we need from the document:
-  getAlgoliaActivityData(doc: FirebaseFirestore.DocumentSnapshot): AlgoliaActivity | null {
+  getAlgoliaActivityData = (doc: FirebaseFirestore.DocumentSnapshot): AlgoliaActivity | null => {
     const data = doc.data()
     if (!doc.exists || !data) {
       return null
@@ -93,7 +93,7 @@ export default class AlgoliaSync {
     }
   }
   
-  hasActivityChanged(a: AlgoliaActivity, b: AlgoliaActivity): boolean {
+  hasActivityChanged = (a: AlgoliaActivity, b: AlgoliaActivity): boolean => {
     if (a.title !== b.title ||
         a.description !== b.description ||
         a._geoloc.lat !== b._geoloc.lat ||
@@ -107,7 +107,7 @@ export default class AlgoliaSync {
     return false
   }
   
-  locationConvert(loc: FirebaseFirestore.GeoPoint): AlgoliaGeoPoint {
+  locationConvert = (loc: FirebaseFirestore.GeoPoint): AlgoliaGeoPoint => {
     return {
       lat: loc.latitude,
       lng: loc.longitude,
@@ -115,7 +115,7 @@ export default class AlgoliaSync {
   }
   
   // Deep equal check an array of strings for equality:
-  areArrsDifferent(a: string[], b: string[]): boolean {
+  areArrsDifferent = (a: string[], b: string[]): boolean => {
     return a.sort().join(',') !== b.sort().join(',')
   }
 }
