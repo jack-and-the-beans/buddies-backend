@@ -457,7 +457,9 @@ describe('Get Algolia Activity Data', () => {
       title: 'b',
       description: 'c',
       start_time: startTime,
+      start_time_num: startTime.getTime(),
       end_time: endTime,
+      end_time_num: endTime.getTime(),
       topic_ids: [
         'x',
         'y'
@@ -537,9 +539,12 @@ describe('Has Activity Changed checker', () => {
         lat: 1,
         lng: 3,
       },
+      topic_ids: ['a'],
       start_time: {
         getTime: () => new Date(100)
-      }
+      },
+      start_time_num: new Date(100).getTime(),
+      end_time_num: new Date(200).getTime(),
     }
     const data2 = {
       title: 'a',
@@ -548,15 +553,19 @@ describe('Has Activity Changed checker', () => {
         lat: 1,
         lng: 3,
       },
+      topic_ids: ['a'],
       start_time: {
         getTime: () => new Date(1000)
-      }
+      },
+      start_time_num: new Date(1000).getTime(),
+      end_time_num: new Date(200).getTime(),
     }
     // @ts-ignore
     assert(algolia.hasActivityChanged(data, data2))
   })
   it('Returns true if end times are different', () => {
     const startTime = new Date()
+    const endTime = new Date()
     const data = {
       title: 'a',
       description: 'a',
@@ -564,12 +573,15 @@ describe('Has Activity Changed checker', () => {
         lat: 1,
         lng: 3,
       },
+      topic_ids: ['a'],
       start_time: {
         getTime: () => startTime
       },
+      start_time_num: startTime.getTime(),
       end_time: {
-        getTime: () => new Date(100)
-      }
+        getTime: () => endTime
+      },
+      end_time_num: endTime.getTime(),
     }
     const data2 = {
       title: 'a',
@@ -578,12 +590,15 @@ describe('Has Activity Changed checker', () => {
         lat: 1,
         lng: 3,
       },
+      topic_ids: ['a'],
       start_time: {
         getTime: () => startTime
       },
+      start_time_num: startTime.getTime(),
       end_time: {
-        getTime: () => new Date(1000)
-      }
+        getTime: () => endTime
+      },
+      end_time_num: endTime.getTime() + 100,
     }
     // @ts-ignore
     assert(algolia.hasActivityChanged(data, data2))
@@ -601,6 +616,8 @@ describe('Has Activity Changed checker', () => {
       start_time: {
         getTime: () => startTime
       },
+      start_time_num: startTime.getTime(),
+      end_time_num: endTime.getTime(),
       end_time: {
         getTime: () => endTime
       },
@@ -616,6 +633,8 @@ describe('Has Activity Changed checker', () => {
       start_time: {
         getTime: () => startTime
       },
+      start_time_num: startTime.getTime(),
+      end_time_num: endTime.getTime(),
       end_time: {
         getTime: () => endTime
       },
@@ -640,6 +659,8 @@ describe('Has Activity Changed checker', () => {
       end_time: {
         getTime: () => endTime
       },
+      start_time_num: startTime.getTime(),
+      end_time_num: endTime.getTime(),
       topic_ids: ['a', 'b', 'c']
     }
     const data2 = {
@@ -655,7 +676,9 @@ describe('Has Activity Changed checker', () => {
       end_time: {
         getTime: () => endTime
       },
-      topic_ids: ['c', 'b', 'a']
+      topic_ids: ['c', 'b', 'a'],
+      start_time_num: startTime.getTime(),
+      end_time_num: endTime.getTime(),
     }
     // @ts-ignore
     assert(!algolia.hasActivityChanged(data, data2))

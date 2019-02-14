@@ -13,6 +13,8 @@ interface AlgoliaActivity extends AlgoliaBase {
     start_time: Date,
     end_time: Date,
     topic_ids: string[],
+    end_time_num: number,
+    start_time_num: number,
 }
 
 interface AlgoliaUser extends AlgoliaBase {

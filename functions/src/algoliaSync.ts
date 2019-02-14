@@ -88,7 +88,9 @@ export default class AlgoliaSync {
       title: data.title,
       description: data.description,
       start_time: data.start_time.toDate(),
+      start_time_num: data.start_time.toDate().getTime(),
       end_time: data.end_time.toDate(),
+      end_time_num: data.end_time.toDate().getTime(),
       topic_ids: data.topic_ids,
     }
   }
@@ -98,8 +100,8 @@ export default class AlgoliaSync {
         a.description !== b.description ||
         a._geoloc.lat !== b._geoloc.lat ||
         a._geoloc.lng !== b._geoloc.lng ||
-        a.start_time.getTime() !== b.start_time.getTime() ||
-        a.end_time.getTime() !== b.end_time.getTime() ||
+        a.start_time_num !== b.start_time_num ||
+        a.end_time_num !== b.end_time_num ||
         this.areArrsDifferent(a.topic_ids, b.topic_ids)
       ) {
       return true
