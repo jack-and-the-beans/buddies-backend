@@ -1,6 +1,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import * as shortNumber from 'short-number';
+import useLocalStorage from 'react-use-localstorage';
 
 function MetricCard__Loading() {
     return (
@@ -69,19 +70,26 @@ const topicNameById = (id: string | undefined, all: Topic[]) => (all.filter(t =>
 const mostCommonTopic = (acts: Activity[]) => getMostCommonEl(_.flatMap(acts, a => a.topic_ids));
 
 export function Metrics(props: MetricProps) {
-    let lastWeek = new Date();
-    lastWeek.setDate(lastWeek.getDate() - 7);
-    lastWeek.getUTCSeconds()
+    let [ daysAgoJSON, setDaysAgoJSON ] = useLocalStorage("beans/metrics/daysAgo", "7"); // Default to a week ago
+    const setDaysAgo = (daysAgo: number) => setDaysAgoJSON(JSON.stringify(daysAgo));
+    const daysAgo = parseInt(daysAgoJSON);
 
-    let newActivities = props.allActivities.filter(a => a.date_created && a.date_created.toDate() > lastWeek);
-    let newUsers = props.allUsers.filter(u => u.date_joined.toDate() > lastWeek);
+    let recentTimestamp = new Date();
+    recentTimestamp.setDate(recentTimestamp.getDate() - daysAgo);
+    recentTimestamp.getUTCSeconds()
+
+    let newActivities = props.allActivities.filter(a => a.date_created && a.date_created.toDate() > recentTimestamp);
+    let newUsers = props.allUsers.filter(u => u.date_joined.toDate() > recentTimestamp);
 
     return (
         <div>
-
+            <div style={{marginLeft: "auto", marginRight: "auto", marginTop: 25, maxWidth: 500 }}>
+                <div>Recent defined as the last {daysAgo} {daysAgo == 1 ? "day" : "days"}</div>
+                <input type="range" min={1} max={60} onChange={r => setDaysAgo(parseInt(r.currentTarget.value))} defaultValue={daysAgo.toString()} />
+            </div>
             <MetricCard name="Trends">
                 <TextMetric value={topicNameById(mostCommonTopic(props.allActivities), props.allTopics)} kind="[All Time] Most common topic" />
-                <TextMetric value={topicNameById(mostCommonTopic(newActivities), props.allTopics)} kind="[This Week] Most common topic" />
+                <TextMetric value={topicNameById(mostCommonTopic(newActivities), props.allTopics)} kind="[Recent] Most common topic" />
             </MetricCard>
             <MetricCard name="[All Time] Stats">
                 <CountMetric value={props.allUsers.length} kind="users" />
@@ -91,13 +99,13 @@ export function Metrics(props: MetricProps) {
                 <CountMetric value={avgNumJoined(props.allActivities)} kind="avg joined users per activity" />
                 <CountMetric value={avgFavTopics(props.allUsers)} kind="avg favorite topics per user" />
             </MetricCard>
-            <MetricCard name="Activities Created This Week">
+            <MetricCard name="[Recent] Activities">
                 <CountMetric value={newActivities.length} kind="new activities" />
                 <CountMetric value={newActivities.length/props.allUsers.length} kind="avg new activities per user" />
                 <CountMetric value={avgNumTopics(newActivities)} kind="avg topics in new activity" />
                 <CountMetric value={avgNumJoined(newActivities)} kind="avg joined users per new activity" />
             </MetricCard>
-            <MetricCard name="Users Joined this week">
+            <MetricCard name="[Recent] Users Joined">
                 <CountMetric value={newUsers.length} kind="users" />
                 <CountMetric value={avgFavTopics(newUsers)} kind="avg favorite topics per user" />
             </MetricCard>
