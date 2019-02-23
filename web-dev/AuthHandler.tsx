@@ -21,22 +21,9 @@ export class Authorizer extends React.Component<{}> {
             callbacks: {
                 signInSuccessWithAuthResult: function (authResult) {
                     if (authResult.additionalUserInfo.isNewUser) {
-                        var userData: User = {
-                            image_url: "TODO",
-                            uid: authResult.user.uid,
-                            name: authResult.user.name,
-                            bio: "",
-                            date_joined: new Date(),
-                            favorite_topics: [],
-                            blocked_users: [],
-                            blocked_by: [],
-                            blocked_activities: [],
-                        };
-
-                        firestore()
-                            .collection("users")
-                            .doc(authResult.user.uid)
-                            .set(userData);
+                        let msg = "Creating a new account from admin portal is not allowed, please sign up in app first!"
+                        alert(msg);
+                        throw new Error(msg);
                     }
 
                     return false;
