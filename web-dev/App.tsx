@@ -1,18 +1,21 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { store, State, LoadingInfo } from './Store';
+import { store, State } from './Store';
 import { Provider, connect } from 'react-redux';
 import * as _ from 'lodash';
 import * as AuthHandler from './AuthHandler';
 import { EditTopics, EditTopics__Loading } from './EditTopics';
 import * as TopicService from './TopicService';
 import { auth } from './firebaseConfig'
+import { Metrics, Metrics__Loading } from './Metrics';
 
 type AppProps = {
     isAuthorized: boolean
     isAdmin: boolean
-    loading: LoadingInfo
+    loading: boolean
     topics: Topic[]
+    activities: Activity[]
+    users: User[]
 };
 
 function AppHeader(props: { isAuthorized: boolean }) {
@@ -29,13 +32,14 @@ function AppHeader(props: { isAuthorized: boolean }) {
 }
 
 enum ContentMode {
+    Metrics = -1,
     Topics = 0,
     Reports = 1,
 }
 
 class AppContent extends React.Component<AppProps, {mode: ContentMode}> {
     state = {
-        mode: ContentMode.Topics
+        mode: ContentMode.Metrics
     }
 
     private buttonFor(mode: ContentMode, name: string) {
@@ -45,6 +49,8 @@ class AppContent extends React.Component<AppProps, {mode: ContentMode}> {
 
     private renderBody() {
         switch(this.state.mode) {
+            case ContentMode.Metrics:
+                return <Metrics allTopics={this.props.topics} allActivities={this.props.activities} allUsers={this.props.users} />
             case ContentMode.Topics:
                 return <EditTopics onCreateTopic={TopicService.createTopic} topics={this.props.topics} onDeleteTopic={TopicService.deleteTopic}/>
             case ContentMode.Reports:
@@ -56,8 +62,8 @@ class AppContent extends React.Component<AppProps, {mode: ContentMode}> {
         if (!this.props.isAuthorized) 
             return (<AuthHandler.Authorizer />);
 
-        if (this.props.loading.user || this.props.loading.topics) {
-            <EditTopics__Loading />
+        if (this.props.loading) {
+            <Metrics__Loading />
         }
 
         if (!this.props.isAdmin)
@@ -71,6 +77,7 @@ class AppContent extends React.Component<AppProps, {mode: ContentMode}> {
         return (
             <div>
                 <div className="button-group" style={{ textAlign: "center" }}>
+                    {this.buttonFor(ContentMode.Metrics, "Metrics")}
                     {this.buttonFor(ContentMode.Topics, "Topics")}
                     {this.buttonFor(ContentMode.Reports, "Reports")}
                 </div>
@@ -83,7 +90,7 @@ class AppContent extends React.Component<AppProps, {mode: ContentMode}> {
 
 class App extends React.PureComponent<AppProps> {
     render() {
-        if (this.props.loading.app) {
+        if (this.props.loading) {
             return <AppHeader isAuthorized={false} />
         }
 
@@ -102,8 +109,10 @@ function mapStateToProps(state: State): AppProps {
     return {
         isAuthorized: state.user.isAuthorized,
         isAdmin: state.user.isAdmin,
-        loading: state.loading,
+        loading: state.loading.app,
         topics: state.topics,
+        activities: state.activities,
+        users: state.users,
     };
 }
 

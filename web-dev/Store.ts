@@ -17,7 +17,9 @@ export type State = {
         isAdmin: boolean
         isAuthorized: boolean
     },
-    topics: Topic[]
+    topics: Topic[],
+    users: User[],
+    activities: Activity[],
 };
 
 const initialState: State = {
@@ -31,6 +33,8 @@ const initialState: State = {
         isAuthorized: false,
     },
     topics: [],
+    users: [],
+    activities: [],
 };
 
 
@@ -49,10 +53,20 @@ export const SetTopics = CreateAction("SetTopics", props<{
     topics: Topic[] 
 }>());
 
+export const SetUsers = CreateAction("SetUsers", props<{
+    users: User[] 
+}>());
+
+export const SetActivities = CreateAction("SetActivities", props<{
+    activities: Activity[] 
+}>());
+
 
 type Action = typeof SetUserData.action 
     | typeof SetIsAuthorized.action
-    | typeof SetTopics.action;
+    | typeof SetTopics.action
+    | typeof SetActivities.action
+    | typeof SetUsers.action
 
 // -----------
 // | REDUCER |
@@ -78,13 +92,21 @@ function reducer(state: State = initialState, action: Action) {
                     isAuthorized: { $set: action.isAuthorized },
                 }
             } as any);
-            case SetTopics.type:
-                return update(state, {
-                    loading: {
-                        topics: { $set: false },
-                    },
-                    topics: { $set: action.topics },
-                } as any);
+        case SetTopics.type:
+            return update(state, {
+                loading: {
+                    topics: { $set: false },
+                },
+                topics: { $set: action.topics },
+            } as any);
+        case SetUsers.type:
+            return update(state, {
+                users: { $set: action.users },
+            } as any);
+        case SetActivities.type:
+            return update(state, {
+                activities: { $set: action.activities },
+            } as any);
         default: 
             return state;
     }
