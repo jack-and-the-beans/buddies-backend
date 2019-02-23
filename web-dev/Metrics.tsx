@@ -55,11 +55,24 @@ type MetricProps = {
     allTopics: Topic[]
 }
 
-function getMostCommonEl<T>(arr: T[]): T | undefined {
-    return arr.sort((a,b) =>
-        arr.filter(v => v===a).length
-        - arr.filter(v => v===b).length
-    ).pop();
+// Adapted from: https://stackoverflow.com/questions/1053843/get-the-element-with-the-highest-occurrence-in-an-array
+function getMostCommonEl(arr: string[]): string | undefined {
+    if(!arr.length)
+        return undefined;
+        
+    var counts: { [key:string]: number } = {};
+    var maxEl = arr[0], maxCount = 1;
+
+    arr.forEach(el => {
+        counts[el] = (counts[el] || 0) + 1;
+
+        if(counts[el] > maxCount) {
+            maxEl = el;
+            maxCount = counts[el];
+        }
+    });
+    
+    return maxEl;
 }
 
 const avgNumTopics = (acts: Activity[]) => acts.reduce((count, act) => count + act.topic_ids.length, 0)/acts.length;
