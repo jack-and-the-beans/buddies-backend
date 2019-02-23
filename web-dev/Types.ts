@@ -10,7 +10,13 @@ type User = {
     blocked_users : string[]
     blocked_activities : string[]
     blocked_by : string[]
-    date_joined : Date
+    date_joined : firebase.firestore.Timestamp
+}
+
+type Activity = {
+    topic_ids: string[]
+    members?: string[]
+    date_created?: firebase.firestore.Timestamp
 }
 
 type Topic = {

@@ -1,4 +1,4 @@
-import { store, SetUserData, SetTopics, SetIsAuthorized } from './Store';
+import { store, SetUserData, SetTopics, SetIsAuthorized, SetUsers, SetActivities } from './Store';
 import { auth, firestore } from './firebaseConfig'
 import * as App from './App';
 import './style.scss';
@@ -47,6 +47,22 @@ function watchValuesForRedux(): () => void {
             (topics? : Topic[]) => {
                 if (topics) {
                     store.dispatch(SetTopics({ topics }));
+                }
+            }
+        ),
+        loadCollection(
+            firestore().collection("users"),
+            (users? : User[]) => {
+                if (users) {
+                    store.dispatch(SetUsers({ users }));
+                }
+            }
+        ),
+        loadCollection(
+            firestore().collection("activities"),
+            (activities? : Activity[]) => {
+                if (activities) {
+                    store.dispatch(SetActivities({ activities }));
                 }
             }
         ),
