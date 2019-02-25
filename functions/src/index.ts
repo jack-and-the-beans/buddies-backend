@@ -26,6 +26,7 @@ const algoliaSync = new AlgoliaSync(
 )
 export const sendActivityDataToAlgolia = functions.firestore.document('activities/{activity_id}').onWrite(algoliaSync.activityDataHandler)
 export const sendUserDataToAlgolia = functions.firestore.document('users/{user_id}').onWrite(algoliaSync.userDataHandler)
+export const onActivityDelete = functions.firestore.document('activities/{activity_id}').onDelete(algoliaSync.onActivityDelete)
 
 import UserManagement from './userManagement'
 const userManagement = new UserManagement(admin.firestore(), admin.storage().bucket())
