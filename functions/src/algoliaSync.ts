@@ -1,6 +1,8 @@
 import * as functions from 'firebase-functions'
 import * as algoliasearch from 'algoliasearch'
 import * as constants from './constants'
+// @ts-ignore Because the package has no typedef:
+import * as firebaseTools from 'firebase-tools'
 
 export default class AlgoliaSync {
   constructor(public client: algoliasearch.Client) { }
@@ -119,5 +121,17 @@ export default class AlgoliaSync {
   // Deep equal check an array of strings for equality:
   areArrsDifferent = (a: string[], b: string[]): boolean => {
     return a.sort().join(',') !== b.sort().join(',')
+  }
+
+  // For reference: https://firebase.google.com/docs/firestore/solutions/delete-collections?authuser=0
+  onActivityDelete = (snapshot: FirebaseFirestore.DocumentSnapshot, context: functions.EventContext): Promise<void> => {
+    const chatPath = `activities/${snapshot.id}/chat`
+    return firebaseTools.firestore
+      .delete(chatPath, {
+        project: process.env.GCLOUD_PROJECT,
+        recursive: true,
+        yes: true,
+        token: functions.config().fb.token
+      })
   }
 }
