@@ -75,9 +75,9 @@ function getMostCommonEl(arr: string[]): string | undefined {
     return maxEl;
 }
 
-const avgNumTopics = (acts: Activity[]) => acts.reduce((count, act) => count + act.topic_ids.length, 0)/acts.length;
+const avgNumTopics = (acts: Activity[]) => acts.reduce((count, act) => count + (act.topic_ids || []).length, 0)/acts.length;
 const avgNumJoined = (acts: Activity[]) => acts.reduce((count, act) => count + (act.members||[]).length, 0)/acts.length;
-const avgFavTopics = (users: User[]) => users.reduce((count, u) => count + u.favorite_topics.length, 0)/users.length;
+const avgFavTopics = (users: User[]) => users.reduce((count, u) => count + (u.favorite_topics || []).length, 0)/users.length;
 
 const topicNameById = (id: string | undefined, all: Topic[]) => (all.filter(t => t.id === id).pop() || { name: id }).name || "None";
 const mostCommonTopic = (acts: Activity[]) => getMostCommonEl(_.flatMap(acts, a => a.topic_ids));
