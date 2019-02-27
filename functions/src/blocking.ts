@@ -1,18 +1,22 @@
 import * as functions from 'firebase-functions'
 import * as admin from 'firebase-admin'
+import Ref from './firestoreRefs'
+
 // import refs from '../../firestoreRefs.js'
 try { admin.initializeApp() } catch (e) {}
 
 const db = admin.firestore();
 
-export async function block(type: string, blocker_id: string, blocked_id: string): Promise<void> {
+export async function block(type: 'user' | 'activity', blocker_id: string, blocked_id: string): Promise<void> {
 
     //use a batch to atomically update both users, works offline
     const batch = db.batch();
 
+    const refs = Ref(db);
+
     if(type === "user"){
-        const blockerRef = db.collection("users").doc(blocker_id);
-        const blockedRef = db.collection("users").doc(blocked_id);
+        const blockerRef = refs.account(blocker_id);
+        const blockedRef = refs.account(blocked_id);
 
         batch.update(blockedRef, {
             blocked_by: admin.firestore.FieldValue.arrayUnion(blocker_id)
@@ -22,7 +26,7 @@ export async function block(type: string, blocker_id: string, blocked_id: string
             blocked_users: admin.firestore.FieldValue.arrayUnion(blocked_id)
         });
     } else if (type === "activity"){
-        const blockerRef = db.collection("users").doc(blocker_id);
+        const blockerRef = refs.account(blocker_id);
         batch.update(blockerRef, {
             blocked_activities: admin.firestore.FieldValue.arrayUnion(blocked_id)
         });

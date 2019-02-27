@@ -229,7 +229,7 @@ export const storageBucketMock = {
     })
 }
 
-export const firestoreMock = {
+export const firestoreMock: FirebaseFirestore.Firestore = ({
     collection: (id: string) => {
         if (id === 'activities') {
             return collectionGenerator(mockActivity)
@@ -239,7 +239,7 @@ export const firestoreMock = {
             return null
         }
     }
-}
+}) as any as FirebaseFirestore.Firestore
 
 // These are just for spying:
 export const spyOnMe1 = () => 1

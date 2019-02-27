@@ -13,8 +13,8 @@ describe("Block function", () => {
         before(async ()=>{
             test = getTestFeatureList();
             db = admin.firestore();
-            await db.collection('users').doc("blocker_guy").set({"name": "our blocker_guy"});
-            await db.collection('users').doc("blocked_guy").set({"name": "our blocked_guy"});
+            await db.collection('accounts').doc("blocker_guy").set({"name": "our blocker_guy"});
+            await db.collection('accounts').doc("blocked_guy").set({"name": "our blocked_guy"});
         })
 
         after(()=> { test.cleanup(); })
@@ -22,8 +22,8 @@ describe("Block function", () => {
         it("Denormalizes data for an arbitrary blocker and blockee", async ()=>{
             await blocking.block('user', "blocker_guy", "blocked_guy");
 
-            const blockerDoc = await db.collection('users').doc("blocker_guy").get();
-            const blockedDoc = await db.collection('users').doc("blocked_guy").get();
+            const blockerDoc = await db.collection('accounts').doc("blocker_guy").get();
+            const blockedDoc = await db.collection('accounts').doc("blocked_guy").get();
         
             const blockerData = blockerDoc.data();
             const blockedData = blockedDoc.data();
