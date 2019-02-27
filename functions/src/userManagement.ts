@@ -14,10 +14,13 @@ export default class UserManagement {
 
   onUserDelete = async (user: admin.auth.UserRecord, context: functions.EventContext) => {
     const uid = user.uid
-    const databaseRef = Refs(this.database).user(uid)
+    const publicRef = Refs(this.database).public_user(uid)
+    const privateRef = Refs(this.database).account(uid)
     const pictureRef = this.storageBucket.file(`users/${uid}/profilePicture.jpg`)
   
-    await databaseRef.delete()
+    await publicRef.delete()
+    await privateRef.delete()
+    
     const exists = await pictureRef.exists()
     if (exists) {
       await pictureRef.delete()

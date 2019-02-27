@@ -5,7 +5,8 @@ export default function refs(firestore: FirebaseFirestore.Firestore) {
         activities: () => firestore.collection('activities'),
         activity: (activityId: string) => firestore.collection('activities').doc(activityId),
         chat: (activityId: string) => firestore.collection('activities').doc(activityId).collection('chat'),
-        users: () => firestore.collection('users'),
-        user: (userId: string) => firestore.collection('users').doc(userId)
+        accounts: () => firestore.collection('accounts'),
+        account: (userId: string) => firestore.collection('accounts').doc(userId),
+        public_user: (userId: string) => firestore.collection('users').doc(userId)
     }
 }

@@ -97,7 +97,7 @@ export default class Notifications {
         const [joined, left] = this.getUserDiff(usersBefore, usersAfter)
     
         const joinedTasks = joined.map(async (uid) => {
-            const userInfo = await Refs(this.database).user(uid).get()
+            const userInfo = await Refs(this.database).public_user(uid).get()
             const userData = userInfo.data()
             if (userInfo.exists && userData) {
                 const msgBody = `${userData.name} has joined your activity.`
@@ -160,7 +160,7 @@ export default class Notifications {
         // Get the document for each user other than the owner:
         const userDocs = await Promise.all(user_ids.reduce((val: Promise<FirebaseFirestore.DocumentSnapshot>[], memberId: string) => {
             if (memberId !== senderId) {
-                val.push(Refs(db).user(memberId).get())
+                val.push(Refs(db).account(memberId).get())
             }
             return val
         }, []))
