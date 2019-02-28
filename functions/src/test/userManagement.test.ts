@@ -16,7 +16,7 @@ describe('User Management', () => {
       }
       // @ts-ignore
       await userManagement.onUserDelete(testUser, {})
-      assert(dbSpy.calledOnce)
+      assert(dbSpy.calledTwice)
       dbSpy.restore()
     })
     it('Deletes their profile picture if it exists', async () => {
