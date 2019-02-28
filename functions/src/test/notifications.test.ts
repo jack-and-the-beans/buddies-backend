@@ -199,7 +199,7 @@ describe('Notifications', () => {
             // @ts-ignore because our mock is fine
             const res = await notifications.getTokensForChatNotification(userIds, senderId, db)
             assert(collectionSpy.calledTwice)
-            assert(collectionSpy.calledWithExactly('users'))
+            assert(collectionSpy.calledWithExactly('accounts'))
         })
         it('Excludes the sender\'s token', async () => {
             const userIds = ['bob', 'alice', 'mallory']

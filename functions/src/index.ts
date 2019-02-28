@@ -31,3 +31,4 @@ export const onActivityDelete = functions.firestore.document('activities/{activi
 import UserManagement from './userManagement'
 const userManagement = new UserManagement(admin.firestore(), admin.storage().bucket())
 export const onUserDelete = functions.auth.user().onDelete(userManagement.onUserDelete)
+export const onAccountChange = functions.firestore.document("accounts/{user_id}").onWrite(userManagement.onAccountChangePush)

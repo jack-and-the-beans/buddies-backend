@@ -233,7 +233,8 @@ export const firestoreMock: FirebaseFirestore.Firestore = ({
     collection: (id: string) => {
         if (id === 'activities') {
             return collectionGenerator(mockActivity)
-        } else if (id === 'users') {
+        } else if (id === 'users' || id === 'accounts') { 
+            // just mock the public users and private data the same. 
             return collectionGenerator(mockUsers)
         } else {
             return null
