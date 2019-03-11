@@ -42,7 +42,7 @@ describe("Block function", () => {
         before(async ()=>{
             test = getTestFeatureList();
             db = admin.firestore();
-            await db.collection('users').doc("blocker_guy").set({"name": "our blocker_guy"});
+            await db.collection('accounts').doc("blocker_guy").set({"name": "our blocker_guy"});
             await db.collection('activities').doc("blocked_activity").set({"name": "our blocked_activity"});
         })
 
@@ -51,7 +51,7 @@ describe("Block function", () => {
         it("Denormalizes data for an arbitrary blocker and blockee", async ()=>{
             await blocking.block('activity', "blocker_guy", "blocked_activity");
 
-            const blockerDoc = await db.collection('users').doc("blocker_guy").get();
+            const blockerDoc = await db.collection('accounts').doc("blocker_guy").get();
             const blockerData = blockerDoc.data();
 
             assert(!blockerData!.blocked_by); 
