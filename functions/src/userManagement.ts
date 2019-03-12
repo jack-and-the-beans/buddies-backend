@@ -53,8 +53,13 @@ export default class UserManagement {
     });
 
     const pairs = keysToDuplicate.map(key => [key, accountData[key]]);
-    const userObject = _.fromPairs(pairs);
+    const newValue = _.fromPairs(pairs);
 
-    await ref.set(userObject);
+    const oldValueSnap = await ref.get();
+    const oldValue = oldValueSnap.data();
+
+    if (!_.isEqual(oldValue, newValue)) {
+      await ref.set(newValue);
+    }
   }
 }
