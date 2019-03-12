@@ -30,22 +30,31 @@ export default class UserManagement {
 
   onAccountChangePush = async (change: functions.Change<FirebaseFirestore.DocumentSnapshot>) => {
     const keysToDuplicate = [
-        "uid",
-        "image",
-        "image_url",
-        "date_joined",
-        "name",
-        "bio",
-        "favorite_topics",
+      "uid",
+      "image_url",
+      "date_joined",
+      "name",
+      "bio",
+      "favorite_topics",
     ];
 
     const uid = change.after.id;
+    const ref = Refs(this.database).public_user(uid);
     const accountData = change.after.data();
-    if (!accountData) return
+    if (!accountData || !change.after.exists) {
+      await ref.delete();
+      return;
+    }
+
+    // Sanity Check!
+    keysToDuplicate.forEach(key => {
+      if (_.isUndefined(accountData[key]))
+        throw new Error(`Error: KEY=${key} not found on UID=${uid}`);
+    });
 
     const pairs = keysToDuplicate.map(key => [key, accountData[key]]);
     const userObject = _.fromPairs(pairs);
 
-    return Refs(this.database).public_user(uid).set(userObject);
+    await ref.set(userObject);
   }
 }
