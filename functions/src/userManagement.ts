@@ -29,7 +29,8 @@ export default class UserManagement {
     }
 
     this.auth.getUser(uid)
-      .then(() => this.auth.deleteUser(uid)).catch()
+      .then(() => this.auth.deleteUser(uid))
+      .catch(e => console.log(`Could not delete the user account: ${e.message}`))
   }
 
   deletePublicAccount = async (uid: string) => {
@@ -62,6 +63,8 @@ export default class UserManagement {
       await ref.delete();
       return;
     }
+
+    accountData.uid = uid
 
     // Sanity Check!
     keysToDuplicate.forEach(key => {
