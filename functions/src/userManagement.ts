@@ -11,17 +11,34 @@ interface Bucket {
 }
 
 export default class UserManagement {
-  constructor(public database: FirebaseFirestore.Firestore, public storageBucket: Bucket) {}
+  constructor(public database: FirebaseFirestore.Firestore, public storageBucket: Bucket, public auth: admin.auth.Auth) {}
 
   onUserDelete = async (user: admin.auth.UserRecord, context: functions.EventContext) => {
     const uid = user.uid
-    const publicRef = Refs(this.database).public_user(uid)
     const privateRef = Refs(this.database).account(uid)
-    const pictureRef = this.storageBucket.file(`users/${uid}/profilePicture.jpg`)
-  
     await privateRef.delete()
+  }
+
+  onUserDocDelete = async (snapshot: FirebaseFirestore.DocumentSnapshot, context: functions.EventContext) => {
+    const uid = snapshot.id
+    await this.deletePublicAccount(uid)
+    try {
+      await this.deleteUserPicture(uid)
+    } catch (e) {
+      console.log(`Did not delete picture: ${e.message}`)
+    }
+
+    this.auth.getUser(uid)
+      .then(() => this.auth.deleteUser(uid)).catch()
+  }
+
+  deletePublicAccount = async (uid: string) => {
+    const publicRef = Refs(this.database).public_user(uid)
     await publicRef.delete()
-    
+  }
+
+  deleteUserPicture = async (uid: string) => {
+    const pictureRef = this.storageBucket.file(`users/${uid}/profilePicture.jpg`)
     const exists = await pictureRef.exists()
     if (exists) {
       await pictureRef.delete()

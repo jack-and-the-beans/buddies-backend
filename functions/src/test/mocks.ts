@@ -6,6 +6,11 @@ export const adminMock = () => ({
     messaging: () => messagingMock
 })
 
+export const authMock = {
+    getUser: (uid: string) => Promise.resolve(),
+    deleteUser: (uid: string) => Promise.resolve()
+}
+
 export const testUsersNoteAndBlock: AlgoliaUser[] = [
     { // Remove because there is no token:
         objectID: '1',

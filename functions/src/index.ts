@@ -29,6 +29,7 @@ export const sendUserDataToAlgolia = functions.firestore.document('accounts/{use
 export const onActivityDelete = functions.firestore.document('activities/{activity_id}').onDelete(algoliaSync.onActivityDelete)
 
 import UserManagement from './userManagement'
-const userManagement = new UserManagement(admin.firestore(), admin.storage().bucket())
+const userManagement = new UserManagement(admin.firestore(), admin.storage().bucket(), admin.auth())
 export const onUserDelete = functions.auth.user().onDelete(userManagement.onUserDelete)
+export const onUserDocDelete = functions.firestore.document('accounts/{user_id}').onDelete(userManagement.onUserDocDelete)
 export const onAccountChange = functions.firestore.document("accounts/{user_id}").onWrite(userManagement.onAccountChangePush)
