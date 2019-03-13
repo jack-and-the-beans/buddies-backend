@@ -3,6 +3,8 @@ import { auth, firestore } from './firebaseConfig'
 import * as App from './App';
 import './style.scss';
 
+
+
 function loadCollection(ref: firebase.firestore.CollectionReference, callback: (data?: any[]) => void) {
     const useCallback = (snapshot: firebase.firestore.QuerySnapshot) => 
         callback(snapshot.docs.map(d => {
@@ -12,6 +14,17 @@ function loadCollection(ref: firebase.firestore.CollectionReference, callback: (
         }));
 
     return ref.onSnapshot(useCallback);
+}
+
+function loadCollectionOnce(ref: firebase.firestore.CollectionReference, callback: (data?: any[]) => void) {
+    const useCallback = (snapshot: firebase.firestore.QuerySnapshot) => 
+        callback(snapshot.docs.map(d => {
+            const data = d.data()
+            data.id = d.id
+            return data
+        }));
+
+    return ref.get().then(useCallback);
 }
 
 function loadDoc(ref: firebase.firestore.DocumentReference, callback: (data?: any) => void) {
@@ -33,7 +46,7 @@ function watchValuesForRedux(): () => void {
 
     var cancelCallbacks = [
         loadDoc(
-            firestore().collection("users").doc(currentUser.uid),
+            firestore().collection("accounts").doc(currentUser.uid),
             (user?: User) => {
                 if (user) {
                     store.dispatch(SetUserData({
@@ -50,23 +63,25 @@ function watchValuesForRedux(): () => void {
                 }
             }
         ),
-        loadCollection(
-            firestore().collection("users"),
-            (users? : User[]) => {
-                if (users) {
-                    store.dispatch(SetUsers({ users }));
-                }
-            }
-        ),
-        loadCollection(
-            firestore().collection("activities"),
-            (activities? : Activity[]) => {
-                if (activities) {
-                    store.dispatch(SetActivities({ activities }));
-                }
-            }
-        ),
     ];
+
+
+    loadCollectionOnce(
+        firestore().collection("users"),
+        (users? : User[]) => {
+            if (users) {
+                store.dispatch(SetUsers({ users }));
+            }
+        }
+    );
+    loadCollectionOnce(
+        firestore().collection("activities"),
+        (activities? : Activity[]) => {
+            if (activities) {
+                store.dispatch(SetActivities({ activities }));
+            }
+        }
+    );
 
     return () => cancelCallbacks.forEach(cc => cc());
 }
