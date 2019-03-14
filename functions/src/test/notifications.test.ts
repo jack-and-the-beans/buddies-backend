@@ -273,7 +273,8 @@ describe('Notifications', () => {
                     body: test_message
                 },
                 data: {
-                    activity_id: test_activity
+                    activity_id: test_activity,
+                    nav_dest: 'my_activities'
                 },
                 apns: {
                     payload: {
