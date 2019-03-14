@@ -84,7 +84,7 @@ export default class Notifications {
                 title: "A new activity has been created near you!",
                 body: "You'll love this activity!"
             },
-            data: { activity_id },
+            data: { activity_id, nav_dest: 'discover' },
         }
     }
     
@@ -187,7 +187,7 @@ export default class Notifications {
         return {
             token,
             notification: { title, body: message },
-            data: { activity_id: activity_id },
+            data: { activity_id: activity_id, nav_dest: 'my_activities' },
             apns: { payload: { aps: { 'thread-id': activity_id } } }
         }
     }
