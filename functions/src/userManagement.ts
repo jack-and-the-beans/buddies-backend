@@ -50,6 +50,7 @@ export default class UserManagement {
     const keysToDuplicate = [
       "uid",
       "image_url",
+      "image_version",
       "date_joined",
       "name",
       "bio",
@@ -64,7 +65,9 @@ export default class UserManagement {
       return;
     }
 
+    // Defaults
     accountData.uid = uid
+    accountData.image_version = accountData.image_version || 0
 
     // Sanity Check!
     keysToDuplicate.forEach(key => {
