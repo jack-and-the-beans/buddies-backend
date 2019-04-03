@@ -1,7 +1,7 @@
 type User = {
     image_url : string
     is_admin? : boolean
-    uid : string
+    id : string
     name : string
     bio : string
     email? : string // Facebook doesn't always have email
@@ -14,6 +14,8 @@ type User = {
 }
 
 type Activity = {
+    id: string
+    title: string
     topic_ids: string[]
     members?: string[]
     date_created?: firebase.firestore.Timestamp
@@ -28,4 +30,14 @@ type Topic = {
 type TopicToCreate = {
     imageFile: File | null
     name: string
+}
+
+type Report = {
+    message: string
+    report_by_id: string
+    timestamp: firebase.firestore.Timestamp
+
+    // One of the other exists
+    reported_activity_id: string
+    reported_user_id: string
 }
