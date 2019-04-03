@@ -4,10 +4,12 @@ import { store, State } from './Store';
 import { Provider, connect } from 'react-redux';
 import * as _ from 'lodash';
 import * as AuthHandler from './AuthHandler';
-import { EditTopics, EditTopics__Loading } from './EditTopics';
+import { EditTopics } from './EditTopics';
+import { UserReports, ActivityReports } from './Reports';
 import * as TopicService from './TopicService';
 import { auth } from './firebaseConfig'
 import { Metrics, Metrics__Loading } from './Metrics';
+import * as ReportService from './ReportService';
 
 type AppProps = {
     isAuthorized: boolean
@@ -16,6 +18,8 @@ type AppProps = {
     topics: Topic[]
     activities: Activity[]
     users: User[]
+    userReports: Report[]
+    activityReports: Report[]
 };
 
 function AppHeader(props: { isAuthorized: boolean }) {
@@ -34,7 +38,8 @@ function AppHeader(props: { isAuthorized: boolean }) {
 enum ContentMode {
     Metrics = -1,
     Topics = 0,
-    Reports = 1,
+    UserReports = 1,
+    ActivityReports = 2,
 }
 
 class AppContent extends React.Component<AppProps, {mode: ContentMode}> {
@@ -53,8 +58,10 @@ class AppContent extends React.Component<AppProps, {mode: ContentMode}> {
                 return <Metrics allTopics={this.props.topics} allActivities={this.props.activities} allUsers={this.props.users} />
             case ContentMode.Topics:
                 return <EditTopics onCreateTopic={TopicService.createTopic} topics={this.props.topics} onDeleteTopic={TopicService.deleteTopic}/>
-            case ContentMode.Reports:
-                return <div>Not Implemented</div>;
+            case ContentMode.UserReports:
+                return <UserReports onBan={ReportService.banUser} allUsers={this.props.users} userReports={this.props.userReports} />;
+            case ContentMode.ActivityReports:
+                return <ActivityReports onBan={ReportService.banActivity} allUsers={this.props.users} allActivities={this.props.activities} activityReports={this.props.activityReports} />;
         }
     }
 
@@ -79,7 +86,8 @@ class AppContent extends React.Component<AppProps, {mode: ContentMode}> {
                 <div className="button-group" style={{ textAlign: "center" }}>
                     {this.buttonFor(ContentMode.Metrics, "Metrics")}
                     {this.buttonFor(ContentMode.Topics, "Topics")}
-                    {this.buttonFor(ContentMode.Reports, "Reports")}
+                    {this.buttonFor(ContentMode.UserReports, "User Reports")}
+                    {this.buttonFor(ContentMode.ActivityReports, "Activity Reports")}
                 </div>
 
                 {this.renderBody()}
@@ -113,6 +121,8 @@ function mapStateToProps(state: State): AppProps {
         topics: state.topics,
         activities: state.activities,
         users: state.users,
+        userReports: state.userReports,
+        activityReports: state.activityReports,
     };
 }
 

@@ -20,6 +20,8 @@ export type State = {
     topics: Topic[],
     users: User[],
     activities: Activity[],
+    userReports: Report[],
+    activityReports: Report[],
 };
 
 const initialState: State = {
@@ -35,6 +37,8 @@ const initialState: State = {
     topics: [],
     users: [],
     activities: [],
+    userReports: [],
+    activityReports: [],
 };
 
 
@@ -61,12 +65,21 @@ export const SetActivities = CreateAction("SetActivities", props<{
     activities: Activity[] 
 }>());
 
+export const SetUserReports = CreateAction("SetUserReports", props<{
+    reports: Report[] 
+}>());
+
+export const SetActivityReports = CreateAction("SetActivityReports", props<{
+    reports: Report[] 
+}>());
 
 type Action = typeof SetUserData.action 
     | typeof SetIsAuthorized.action
     | typeof SetTopics.action
     | typeof SetActivities.action
     | typeof SetUsers.action
+    | typeof SetUserReports.action
+    | typeof SetActivityReports.action
 
 // -----------
 // | REDUCER |
@@ -106,6 +119,14 @@ function reducer(state: State = initialState, action: Action) {
         case SetActivities.type:
             return update(state, {
                 activities: { $set: action.activities },
+            } as any);
+        case SetActivityReports.type:
+            return update(state, {
+                activityReports: { $set: action.reports },
+            } as any);
+        case SetUserReports.type:
+            return update(state, {
+                userReports: { $set: action.reports },
             } as any);
         default: 
             return state;
