@@ -10,6 +10,7 @@ import * as TopicService from './TopicService';
 import { auth } from './firebaseConfig'
 import { Metrics, Metrics__Loading } from './Metrics';
 import * as ReportService from './ReportService';
+import useLocalStorage from 'react-use-localstorage';
 
 type AppProps = {
     isAuthorized: boolean
@@ -42,18 +43,14 @@ enum ContentMode {
     ActivityReports = 2,
 }
 
-class AppContent extends React.Component<AppProps, {mode: ContentMode}> {
-    state = {
-        mode: ContentMode.Metrics
-    }
-
+class AppContent extends React.Component<AppProps & {mode: ContentMode, setMode(mode: ContentMode): void }> {
     private buttonFor(mode: ContentMode, name: string) {
-        const click = () => this.setState({ mode });
-        return <button type="button" onClick={click} className={this.state.mode === mode ? "selected" : ""}>{name}</button>
+        const click = () => this.props.setMode(mode);
+        return <button type="button" onClick={click} className={this.props.mode === mode ? "selected" : ""}>{name}</button>
     }
 
     private renderBody() {
-        switch(this.state.mode) {
+        switch(this.props.mode) {
             case ContentMode.Metrics:
                 return <Metrics allTopics={this.props.topics} allActivities={this.props.activities} allUsers={this.props.users} />
             case ContentMode.Topics:
@@ -96,6 +93,11 @@ class AppContent extends React.Component<AppProps, {mode: ContentMode}> {
     }
 }
 
+function TabStateApp(props: AppProps) {
+    let [ mode, setMode ] = useLocalStorage("beans/tabBar", "-1");
+    return <AppContent {...props} mode={JSON.parse(mode)} setMode={mode => setMode(JSON.stringify(mode))} />
+}
+
 class App extends React.PureComponent<AppProps> {
     render() {
         if (this.props.loading) {
@@ -106,7 +108,7 @@ class App extends React.PureComponent<AppProps> {
             <div>
                 <AppHeader isAuthorized={this.props.isAuthorized} />
                 <div className="content">
-                    <AppContent {...this.props} />
+                    <TabStateApp {...this.props} />
                 </div>
             </div>
         );
