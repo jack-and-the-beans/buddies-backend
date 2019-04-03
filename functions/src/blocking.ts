@@ -1,6 +1,7 @@
 import * as functions from 'firebase-functions'
 import * as admin from 'firebase-admin'
 import Ref from './firestoreRefs'
+import { get, includes } from 'lodash'
 
 // import refs from '../../firestoreRefs.js'
 try { admin.initializeApp() } catch (e) {}
@@ -58,6 +59,7 @@ export const newReportedUser = functions.firestore
         const { actor_id, target_id } = getReportIds('report_by_id', 'reported_user_id', snap);
         if(actor_id && target_id){
             await block('user', actor_id, target_id);
+            await removeMyselfFromSharedActivities(actor_id, target_id)
         } else {
             console.error(`Blocker "${actor_id}" or blocked "${target_id}" does not exist`);
         }
@@ -76,3 +78,25 @@ export const newReportedActivity = functions.firestore
     });
 
 
+// We want to remove ME from evry activity I share with "blockedUser"
+ async function removeMyselfFromSharedActivities(me: string, blockedUser: string): Promise<void> {
+     // Query for all activities which I am in. Note that we cannot
+     // chain array-contains to include multiple values
+    const query = db.collection('activities').where('members', 'array-contains', me)
+    const results = await query.get()
+
+    // Find all of my activities which include the blocked user
+    const matchingActivities = results.docs.filter( doc => {
+        const data = doc.data()
+        const members = get(data, 'members', []) as string[]
+        return includes(members, blockedUser)
+    })
+    
+    // Remove myself from each shared activity
+    const tasks = matchingActivities.map( ({ ref }) => ref.update({
+            members: admin.firestore.FieldValue.arrayRemove(me)
+        })
+    )
+    // Execute all update tasks in parallel
+    await Promise.all(tasks)
+}
