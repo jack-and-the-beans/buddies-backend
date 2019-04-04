@@ -56,9 +56,9 @@ class AppContent extends React.Component<AppProps & {mode: ContentMode, setMode(
             case ContentMode.Topics:
                 return <EditTopics onCreateTopic={TopicService.createTopic} topics={this.props.topics} onDeleteTopic={TopicService.deleteTopic}/>
             case ContentMode.UserReports:
-                return <UserReports onBan={ReportService.banUser} allUsers={this.props.users} userReports={this.props.userReports} />;
+                return <UserReports deleteReport={ReportService.deleteUserReport} onBan={ReportService.banUser} allReports={this.props.activityReports.concat(this.props.userReports)} allUsers={this.props.users} userReports={this.props.userReports} />;
             case ContentMode.ActivityReports:
-                return <ActivityReports onBan={ReportService.banActivity} allUsers={this.props.users} allActivities={this.props.activities} activityReports={this.props.activityReports} />;
+                return <ActivityReports deleteReport={ReportService.deleteActivityReport} onBan={ReportService.banActivity} allReports={this.props.activityReports.concat(this.props.userReports)} allUsers={this.props.users} userReports={this.props.userReports} allActivities={this.props.activities} activityReports={this.props.activityReports} />;
         }
     }
 

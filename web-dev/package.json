@@ -39,6 +39,7 @@
     "firebaseui": "^3.5.2",
     "immutability-helper": "^2.9.0",
     "lodash": "^4.17.11",
+    "memoize-one": "^5.0.2",
     "react": "^16.8.3",
     "react-dom": "^16.8.3",
     "react-redux": "^6.0.1",
