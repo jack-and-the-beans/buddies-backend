@@ -87,10 +87,12 @@ const getReportsdByUser: ((r: Report[]) => _.Dictionary<Report[] | undefined>) =
     memoizeOne((userReports: Report[]) => _.keyBy(groupReports(userReports, r => r.report_by_id), r => r[0].report_by_id));
 
 function groupReports<T>(reports: Report[], toGroupBy: (r: Report) => any): Report[][] {
+    // Grab grouped reports sorted by 
+    //  number of reports for this object
+    //  and then by latestReportTimestamp.
     return _(reports)
         .groupBy(toGroupBy)
-        .orderBy(r => r.length, "desc")
-        .orderBy(latestReportTimestamp, "desc")
+        .orderBy([r => r.length, latestReportTimestamp], ["desc", "desc"])
         .value() as Report[][];
 }
 
