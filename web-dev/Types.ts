@@ -16,6 +16,8 @@ type User = {
 type Activity = {
     id: string
     title: string
+    description: string
+    owner_id: string
     topic_ids: string[]
     members?: string[]
     date_created?: firebase.firestore.Timestamp
@@ -36,7 +38,7 @@ type Report = {
     message: string
     report_by_id: string
     timestamp: firebase.firestore.Timestamp
-
+    id: string
     // One of the other exists
     reported_activity_id: string
     reported_user_id: string
