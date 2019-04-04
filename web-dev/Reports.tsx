@@ -5,7 +5,7 @@ import memoizeOne from 'memoize-one'
 function Card(props: { kind: string, name: String | React.ReactNode, onBan(): void } & React.Props<any>) {
     return (
         <div className="card">
-            <div className="top-area" style={{ justifyContent: "left" }}>
+            <div className="top-area" style={{ marginBottom: 25, justifyContent: "left" }}>
                 <h1 style={{width: "100%"}}>{props.name}</h1>
                 <button style={{marginLeft: "unset", float: "right"}} onClick={props.onBan}>Delete {props.kind}</button>
             </div>
@@ -29,9 +29,9 @@ function SingleReport(props: { deleteReport(): void, by: { name: string, id: str
 
     return (
         <li>
-            <i className="label">{ props.by.name } ({reportsBy} by, {reportsAgainst} against)</i>
+            <i className="label">{ props.by.name } ({reportsBy} reports by, {reportsAgainst} reports against)</i>
             <button style={{float: "right"}} onClick={props.deleteReport}>Delete Report</button>
-            <div style={{margin: 10, whiteSpace: "pre-wrap"}}>{ props.message }</div>
+            <div style={{margin: "5px 0", padding: "5px 10px", borderLeft: "4px solid #c5a8c5", whiteSpace: "pre-wrap"}}>{ props.message }</div>
         </li>
     );
 }
@@ -66,12 +66,16 @@ function ReportsAgainst(props: ReportsAgainstProps & React.Props<any>) {
 
     return (
         <Card name={header} kind={props.kind} onBan={props.onBan}>
-            <br/>{props.children}<br/>
-            <span className="label">Reports ({reports.length}):</span>
-            <ul style={{margin: 0}}>{reports}</ul>
+            {props.children}
+            <div className="field">
+                <span className="label">Reports ({reports.length}):</span>
+                <ul style={{margin: 0}}>{reports}</ul>
+            </div>
         </Card>
     );
 }
+
+const geoNum = (n: number | undefined) => (n || 0).toFixed(3);
 
 const latestReportTimestamp = (reports: Report[]) => Math.max.apply(Math, reports.map(r => r.timestamp.toMillis()))
 
@@ -166,17 +170,23 @@ export function ActivityReports(props: ActivityReportProps) {
                     against={activity.title}
                     users={userMap}
                     reports={reports}>
-                        <div className="label">Description:</div>
-                        <br/>
-                        <div className="label">Description:</div>
-                        <div style={{marginLeft: 20, fontSize: 13, whiteSpace: "pre-wrap"}}>{activity.description}</div>
-                        <br/>
-                        <div><span className="label">Created By:</span> <b>{owner.name}</b></div>
-                        <ul style={{margin:0}}>
-                            <li><b>{(reportsAgainstUser[owner.id] || []).length}</b><span className="label"> reports of user</span></li>
-                            <li><b>{reportedActivitiesByOwner}</b><span className="label"> activities created by this user have pending reports.</span></li>
-                            <li><b>{(activityReportsAgainstUser[owner.id] || []).length}</b><span className="label"> total pending reports against activities created by this user.</span></li>
-                        </ul>
+                        <div className="field">
+                            <div className="label">Info:</div>
+                            <ul style={{margin: 0}}>
+                                <li><span className="label">Description: </span><span style={{fontSize: 13, whiteSpace: "pre-wrap"}}>{activity.description}</span></li>
+                                <li><span className="label">Members: </span><b>{(activity.members || []).length}</b></li>
+                                <li><span className="label">Topics: </span><b>{(activity.topic_ids || []).length}</b></li>
+                                <li><span className="label">Location: </span> {activity.location_text} ({geoNum((activity.location || {}).latitude)}, {geoNum((activity.location || {}).longitude)})</li>
+                            </ul>
+                        </div>
+                        <div className="field">
+                            <div><span className="label">Created By: </span><b>{owner.name}</b></div>
+                            <ul style={{margin:0}}>
+                                <li><b>{(reportsAgainstUser[owner.id] || []).length}</b><span className="label"> reports of user</span></li>
+                                <li><b>{reportedActivitiesByOwner}</b><span className="label"> activities created by this user have pending reports.</span></li>
+                                <li><b>{(activityReportsAgainstUser[owner.id] || []).length}</b><span className="label"> total pending reports against activities created by this user.</span></li>
+                            </ul>
+                        </div>
                 </ReportsAgainst>   
             )
         });

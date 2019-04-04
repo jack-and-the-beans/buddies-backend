@@ -20,6 +20,8 @@ type Activity = {
     owner_id: string
     topic_ids: string[]
     members?: string[]
+    location: firebase.firestore.GeoPoint
+    location_text: string
     date_created?: firebase.firestore.Timestamp
 }
 
