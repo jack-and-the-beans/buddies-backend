@@ -1,6 +1,9 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import memoizeOne from 'memoize-one'
+import * as SentimentFinder from 'sentiment'
+const sentiment = new SentimentFinder();
+
 
 function Card(props: { kind: string, name: String | React.ReactNode, onBan(): void } & React.Props<any>) {
     return (
@@ -26,12 +29,21 @@ function HelpText(props: { kind: string }) {
 function SingleReport(props: { deleteReport(): void, by: { name: string, id: string }, allReports: Report[], allUserReports: Report[], message: string }) {
     let reportsBy = (getReportsdByUser(props.allReports)[props.by.id] || []).length;
     let reportsAgainst = (getUserReportsAgainstUser(props.allUserReports)[props.by.id] || []).length;
+    let mySentiment = sentiment.analyze(props.message);
+    let anger = mySentiment.comparative;
 
+    // Make messages stand out more if:
+    //  - they use a log of angry words
+    //  - have a negative sentiment (our main concern)
+    // Note: weighting is emperically derived
+    let lightness = 75.0 + Math.pow(anger * 2, 3) - (mySentiment.negative.length / 5.0);
+    lightness = Math.min(90, Math.max(40, lightness)); //cap at [40, 90]%
+    
     return (
-        <li>
+        <li data-anger={anger}>
             <i className="label">{ props.by.name } ({reportsBy} reports by, {reportsAgainst} reports against)</i>
             <button style={{float: "right"}} onClick={props.deleteReport}>Delete Report</button>
-            <div style={{margin: "5px 0", padding: "5px 10px", borderLeft: "4px solid #c5a8c5", whiteSpace: "pre-wrap"}}>{ props.message }</div>
+            <div style={{margin: "5px 0", padding: "5px 10px", borderLeft: "4px solid hsl(280, 20%, " + lightness + "%)", whiteSpace: "pre-wrap"}}>{ props.message }</div>
         </li>
     );
 }

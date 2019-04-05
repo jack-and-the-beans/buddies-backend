@@ -126,7 +126,7 @@ textarea {
             color: red;
             background-color: white;
         }
-        button:hover {
+        button:hover, button:focus {
             background-color: red;
             color: white;
         }
