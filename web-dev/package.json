@@ -45,6 +45,7 @@
     "react-redux": "^6.0.1",
     "react-use-localstorage": "^3.0.0",
     "redux": "^4.0.1",
+    "sentiment": "^5.0.1",
     "short-number": "^1.0.6"
   }
 }
