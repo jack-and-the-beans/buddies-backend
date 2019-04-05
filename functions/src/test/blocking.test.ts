@@ -1,9 +1,15 @@
 import * as assert from 'assert';
 import * as admin from 'firebase-admin';
 import 'mocha';
-import * as blocking from '../blocking';
+import Blocking from '../blocking';
 import { FeaturesList } from 'firebase-functions-test/lib/features';
 import { getTestFeatureList } from './config';
+import * as mocks from './mocks'
+import * as sinon from 'sinon'
+
+// Ideally, we would use the mock for this, but we want to make sure our existing tests keep working:
+admin.initializeApp()
+const blocking = new Blocking(admin.firestore())
 
 describe("Block function", () => {
 
@@ -113,7 +119,24 @@ describe("IDs are properly taken from snapshots", () => {
     })
 })
 
+describe('Remove myself from shared activities', () => {
+    it('Filters based on members', async () => {
+        const mockBlocking = new Blocking(mocks.firestoreMock)
+        const me = 'me'
+        const blockedUser = 'them'
+        const spy = sinon.spy(mockBlocking, 'updateActivityOnBlock')
+        await mockBlocking.removeMyselfFromSharedActivities(me, blockedUser)
+        assert(spy.calledOnce)
+    })
+})
 
-
-
-
+describe('Update activity on block', () => {
+    it('Calls update on the given ref', async () => {
+        const mockBlocking = new Blocking(mocks.firestoreMock)
+        const spy = sinon.spy(mocks, 'activityUpdateSpy')
+        const mockRef = mocks.generateRef("hello")
+        // @ts-ignore
+        await mockBlocking.updateActivityOnBlock(mockRef.ref, 'me')
+        assert(spy.calledOnce)
+    })
+})

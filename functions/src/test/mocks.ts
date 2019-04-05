@@ -193,6 +193,20 @@ export const mockActivity = {
         end_time : new Date(),
         topic_ids : ['security'],
         date_created : new Date(),
+    },
+    another_act: {
+        location : {
+            latitude: 10,
+            longitude: 10.5
+        },
+        members : ['bob', 'them'],
+        owner_id : ['alice'],
+        title : 'Security Meetup',
+        description : 'We\'ll do security!',
+        start_time : new Date(),
+        end_time : new Date(),
+        topic_ids : ['security'],
+        date_created : new Date(),
     }
 }
 
@@ -267,7 +281,23 @@ function collectionGenerator(data: {[id: string]: Object}) {
             }),
             delete: async () => { exports.spyOnMe1(); return true }
         }),
-        add: (d: any) => Promise.resolve(d)
+        add: (d: any) => Promise.resolve(d),
+        where: (query1: string, query2: string, info: string) => ({
+            get: () => Promise.resolve({ docs: [
+                generateRef(mockActivity.another_act),
+                generateRef(mockActivity.default)
+            ] })
+        })
+    }
+}
+
+export const activityUpdateSpy = (args: any) => undefined
+export function generateRef( data: any ) {
+    return {
+        data: () => data,
+        ref: {
+            update: (args: any) => Promise.resolve(exports.activityUpdateSpy(args))
+        }
     }
 }
 

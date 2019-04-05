@@ -8,7 +8,11 @@ const settings = { timestampsInSnapshots: true }
 admin.firestore().settings(settings)
 
 // Export all cloud functions from this file:
-export * from './blocking'
+import Blocking from './blocking'
+const blocking = new Blocking(admin.firestore())
+export const blockUserOnCall = functions.https.onCall(blocking.blockUserOnCall)
+export const newReportedUser = functions.firestore.document('user_report/{reportId}').onCreate(blocking.newReportedUser)
+export const newReportedActivity = functions.firestore.document('activity_report/{reportId}').onCreate(blocking.newReportedActivity)
 
 import Notifications from './notifications'
 const notifications = new Notifications(
