@@ -53,7 +53,6 @@ export function getReportIds(actorField: string, targetField: string, snap: Fire
     return { actor_id, target_id };
 }
 
-
 export const newReportedUser = functions.firestore
     .document('user_report/{reportId}').onCreate(async (snap, context) => {
         const { actor_id, target_id } = getReportIds('report_by_id', 'reported_user_id', snap);
@@ -65,24 +64,23 @@ export const newReportedUser = functions.firestore
         }
     });
 
-
-
 export const newReportedActivity = functions.firestore
     .document('activity_report/{reportId}').onCreate(async (snap, context) => {
         const { actor_id, target_id } = getReportIds('report_by_id', 'reported_activity_id', snap);
         if(actor_id && target_id){
             await block('activity', actor_id, target_id);
+            const ref = Ref(db).activities().doc(target_id)
+            await updateActivityOnBlock(ref, actor_id)
         } else {
             console.error(`Blocker "${actor_id}" or blocked "${target_id}" does not exist`);
         }
     });
 
-
 // We want to remove ME from evry activity I share with "blockedUser"
  async function removeMyselfFromSharedActivities(me: string, blockedUser: string): Promise<void> {
      // Query for all activities which I am in. Note that we cannot
      // chain array-contains to include multiple values
-    const query = db.collection('activities').where('members', 'array-contains', me)
+    const query = Ref(db).activities().where('members', 'array-contains', me)
     const results = await query.get()
 
     // Find all of my activities which include the blocked user
@@ -92,11 +90,19 @@ export const newReportedActivity = functions.firestore
         return includes(members, blockedUser)
     })
     
-    // Remove myself from each shared activity
-    const tasks = matchingActivities.map( ({ ref }) => ref.update({
-            members: admin.firestore.FieldValue.arrayRemove(me)
-        })
-    )
+    // Handle remove/ban on each shared activity:
+    const tasks = matchingActivities.map( ({ ref }) => updateActivityOnBlock(ref, me) )
+    
     // Execute all update tasks in parallel
     await Promise.all(tasks)
+}
+
+// When we report/block an activity, or report/block a user in the activity, we want to:
+// 1) remove ourselves from the activity and 2) ban ourselves from the activity.
+async function updateActivityOnBlock(activityRef: FirebaseFirestore.DocumentReference, me: string): Promise<void> {
+    // Remove myself from members; add myself to ban list:
+    await activityRef.update({
+        members: admin.firestore.FieldValue.arrayRemove(me),
+        banned_users: admin.firestore.FieldValue.arrayUnion(me)
+    })
 }

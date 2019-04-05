@@ -38,6 +38,7 @@ interface Activity {
     end_time : Date
     topic_ids : string[]
     date_created : Date
+    banned_users: string[]
 }
 
 interface ChatMessage {
