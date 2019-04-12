@@ -2,6 +2,10 @@
     box-sizing: border-box;
 }
 
+.shadow {
+    box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12), 0 1px 5px 0 rgba(0,0,0,0.2);
+}
+
 body {
     background-color: #f8f8f8;
     margin: 0;
@@ -10,9 +14,9 @@ body {
 }
 
 header {
+    @extend .shadow;
     background-color: #3e51b5;
     padding: 15px;
-    box-shadow: 0 2px 14px 0px #4d4d9e;
     color: white;
 
     button {
@@ -63,11 +67,11 @@ textarea {
     height: 150px;;
 }
 
-
 .card {
+    @extend .shadow;
+
     background: white;
     max-width: 648px;
-    box-shadow: 0 2px 14px 0px #afafaf;
     box-sizing: border-box;
     margin: 16px auto;
     padding: 32px 24px;

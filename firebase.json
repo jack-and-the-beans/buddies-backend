@@ -16,7 +16,7 @@
     ],
     "predeploy": [
       "sh build --mode=production",
-      "cp -r web-dev/static web-output/static"
+      "cp -r web-dev/static web-output"
     ],
     "rewrites": [
       {
