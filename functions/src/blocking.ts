@@ -73,7 +73,8 @@ export default class Blocking {
         return { actor_id, target_id };
     }
 
-    // We want to remove ME from evry activity I share with "blockedUser"
+    // I want to remove myself from evry activity I share with `blockedUser`.
+    // If I own the activity, I want to remove them instead.
     removeMyselfFromSharedActivities = async (me: string, blockedUser: string) => {
         // Query for all activities which I am in. Note that we cannot
         // chain array-contains to include multiple values
@@ -81,6 +82,7 @@ export default class Blocking {
         const results = await query.get()
 
         // Find all of my activities which include the blocked user
+        // and which are not owned by me
         const matchingActivities = results.docs.filter( doc => {
             const data = doc.data()
             const members = get(data, 'members', []) as string[]
@@ -88,19 +90,25 @@ export default class Blocking {
         })
         
         // Handle remove/ban on each shared activity:
-        const tasks = matchingActivities.map( ({ ref }) => this.updateActivityOnBlock(ref, me) )
+        const tasks = matchingActivities.map( doc => {
+            // Remove and ban me if someone else owns the activity.
+            // Remove and ban the other person if I own the activity.
+            const amOwner = doc.data().owner_id === me
+            const personToRemove = amOwner ? blockedUser : me
+
+            return this.updateActivityOnBlock(doc.ref, personToRemove)
+        })
         
         // Execute all update tasks in parallel
         await Promise.all(tasks)
     }
 
-    // When we report/block an activity, or report/block a user in the activity, we want to:
-    // 1) remove ourselves from the activity and 2) ban ourselves from the activity.
-    updateActivityOnBlock = async (activityRef: FirebaseFirestore.DocumentReference, me: string) => {
-        // Remove myself from members; add myself to ban list:
+    // When we report/block an activity or user, we generally also want to remove the person
+    // from the activity and also add them to the activity ban list.
+    updateActivityOnBlock = async (activityRef: FirebaseFirestore.DocumentReference, personToBlock: string) => {
         await activityRef.update({
-            members: admin.firestore.FieldValue.arrayRemove(me),
-            banned_users: admin.firestore.FieldValue.arrayUnion(me)
+            members: admin.firestore.FieldValue.arrayRemove(personToBlock),
+            banned_users: admin.firestore.FieldValue.arrayUnion(personToBlock)
         })
     }
 }
